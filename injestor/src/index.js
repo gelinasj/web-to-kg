@@ -1,11 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import GraphEditor from "./components/graph-editor.js";
-
+import { SubGraphEditor } from "./components/SubGraphEditor.js";
 
 ReactDOM.render(
   <React.StrictMode>
-    <GraphEditor/>
+    <SubGraphEditor/>
   </React.StrictMode>,
   document.getElementById('injestor')
 );

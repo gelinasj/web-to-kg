@@ -1,0 +1,38 @@
+
+#SubGraphEditor {
+    background-color: LightGray;
+    display: block;
+    width: 65%;
+    margin: auto;
+    border-radius: 10px 10px 10px 10px;
+}
+
+#DraggableMenu {
+    background-color: DarkGray;
+    display: block;
+    height: 100%;
+    width: 100%;
+    border-radius: 10px 10px 0 0;
+    padding: 20px 0 20px 0;
+}
+
+#MenuOptions {
+    margin: auto;
+    width: 60%;
+}
+
+#Entity, #Property, #Literal, #Qualifier {
+  height: 100px; /* Make a percentage */
+  width: 100px; /* Make a percentage */
+  background-color: black;
+  border-radius: 50%;
+  display: block;
+}
+
+#DroppableCanvas {
+    background-color: #afb786;
+    display: block;
+    height: 550px; /* Make a percentage */
+    width: 100%;
+    border-radius: 0 0 10px 10px;
+}
