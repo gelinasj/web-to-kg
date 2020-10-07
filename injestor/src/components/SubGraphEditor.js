@@ -1,122 +1,126 @@
 import React from "react";
-import EntityComponent from "./EntityComponent.js";
-import LiteralComponent from "./LiteralComponent.js";
 import Entity from "../graph/Entity.js"
 import Literal from "../graph/Literal.js";
-import "../style-sheets/SubGraphEditor.css"
-
-const GRAPH_ITEM_CONSTRUCTORS = {
-    Entity: () => new Entity(),
-    Literal: () => new Literal()
-};
 
 class SubGraphEditor extends React.Component {
 
     constructor() {
-        super();
-        this.state = {subgraph: {}};
-        this.onDragStart = this.onDragStart.bind(this);
-        this.onDragOver = this.onDragOver.bind(this);
-        this.onDrop = this.onDrop.bind(this);
+        super()
+        this.subgraph = {};
     }
 
-    onDragStart(event) {
-        const { x, y } = event.target.getBoundingClientRect();
-        const dragItemData = {
-            xOffset: event.clientX - x,
-            yOffset: event.clientY - y,
-            id: event.target.id,
-            key: null
-        };
-        event.dataTransfer.setData("text/plain", JSON.stringify(dragItemData));
+    prepareCanvas() {
+        const canvas = document.getElementById("SubGraphEditorCanvas");
+        const {width, height} = canvas;
+        let ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, width, height);
+        return {ctx, width, height};
     }
 
-    onDragOver(event) {
-        event.preventDefault();
+    addBackground(ctx, width, height) {
+        const menuColor = "#d5d5d5";
+        const menuWidth = width;
+        const menuHeight = height * (1/6);
+        ctx.fillStyle = menuColor;
+        ctx.fillRect(0, 0, menuWidth, menuHeight);
+        const editorColor = "#e4eeb2";
+        const editorWidth = width;
+        const editorHeight = height - menuHeight;
+        this.drawRect(ctx, 0, menuHeight, editorWidth, editorHeight, editorColor);
+        return {menuWidth, menuHeight, editorWidth, editorHeight};
     }
 
-    getItemPostion(position, size, min, max) {
-        const distToMin = position - min;
-        const distToMax = max - (position + size);
-        let offset = 0;
-        offset += distToMin < 0 ? distToMin : 0;
-        offset -= distToMax < 0 ? distToMax : 0;
-        return position - offset;
+    drawCircle(ctx, top, left, diameter, color) {
+        const radius = diameter/2;
+        const x = left + radius;
+        const y = top + radius;
+        ctx.arc(x, y, radius, 0, 2*Math.PI);
+        ctx.fillStyle = color;
+        ctx.fill();
     }
 
-    generateKey(state) {
-        const { subgraph } = state;
-        return JSON.stringify(Object.keys(subgraph).length);
+    drawRect(ctx, top, left, width, height, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(top, left, width, height);
     }
 
-    updateSubgraph(id, key, x, y) {
-        this.setState((state) => {
-            let subgraph;
-            if (key === null) {
-                subgraph = {
-                    [this.generateKey(state)]: {graphItem: GRAPH_ITEM_CONSTRUCTORS[id](), x, y },
-                    ...state.subgraph
-                };
-            } else {
-                const { [key]: itemToUpdate, ...rest } = state.subgraph;
-                const { graphItem } = itemToUpdate;
-                subgraph = {
-                    [key]: {graphItem, x, y},
-                    ...rest
-                };
-            }
-            return {subgraph};
-        });
+    drawArrow(ctx, width, startX, startY, endX, endY, color) {
+        const headlength = 30;
+        const dx = endX - startX;
+        const dy = endY - startY;
+        const arrowAngle = -1 * Math.atan2(dy, dx);
+        const arrowAngleCompl = (Math.PI/2) - arrowAngle;
+
+        // Draw head
+        const triBottomX = endX - headlength * Math.cos(arrowAngle)
+        const triBottomY = endY + headlength * Math.sin(arrowAngle)
+        const triCornerDx = (width/2) * Math.cos(arrowAngleCompl);
+        const triCornerDy = (width/2) * Math.sin(arrowAngleCompl);
+        const triBottomRightX = triBottomX + triCornerDx;
+        const triBottomRightY = triBottomY + triCornerDy;
+        const triBottomLeftX = triBottomX - triCornerDx;
+        const triBottomLeftY = triBottomY - triCornerDy;
+        ctx.beginPath();
+        ctx.moveTo(endX, endY);
+        ctx.lineTo(triBottomRightX, triBottomRightY);
+        ctx.lineTo(triBottomLeftX, triBottomLeftY);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        // Draw body
+        const rectCornerDx = (width/6) * Math.cos(arrowAngleCompl);
+        const rectCornerDy = (width/6) * Math.sin(arrowAngleCompl);
+        const rectBottomRightX = startX + rectCornerDx;
+        const rectBottomRightY = startY + rectCornerDy;
+        const rectBottomLeftX = startX - rectCornerDx;
+        const rectBottomLeftY = startY - rectCornerDy;
+        const rectTopRightX = triBottomX + rectCornerDx;
+        const rectTopRightY = triBottomY + rectCornerDy;
+        const rectTopLeftX = triBottomX - rectCornerDx;
+        const rectTopLeftY = triBottomY - rectCornerDy;
+        ctx.beginPath();
+        ctx.moveTo(rectBottomRightX, rectBottomRightY);
+        ctx.lineTo(rectBottomLeftX, rectBottomLeftY);
+        ctx.lineTo(rectTopLeftX, rectTopLeftY);
+        ctx.lineTo(rectTopRightX, rectTopRightY);
+        ctx.fillStyle = color;
+        ctx.fill();
     }
 
-    onDrop(event) {
-        event.preventDefault();
-        const { xOffset, yOffset, id, key } = JSON.parse(event.dataTransfer.getData("text/plain"));
-        const { x: left, y: top, right, bottom } = document.getElementById("SubGraphCanvas").getBoundingClientRect();
-        const { width, height } = document.getElementById(id).getBoundingClientRect();
-        const x = this.getItemPostion(event.clientX - xOffset, width, left, right);
-        const y = this.getItemPostion(event.clientY - yOffset, height, top, bottom);
-        this.updateSubgraph(id, key, x, y);
+    addMenuItems(ctx, menuWidth, menuHeight) {
+        // const entitytop = ;
+        // const entityleft = ;
+        // const entityDiameter = ;
+        // const entityColor = ;
+        // this.drawCircle(ctx, 0, 0, 100, entityColor);
+        // const literaltop = ;
+        // const literalleft = ;
+        // const literalWidth = ;
+        // const literalHeight = ;
+        // const literalColor = ;
+        // this.drawRect(ctx, literaltop, literalleft, literalWidth, literalHeight, literalColor);
+        // const propertyWidth = ;
+        // const propertyHeight = ;
+        // const propertyStartX = ;
+        // const propertyStartY = ;
+        // const propertyEndX = ;
+        // const propertyEndY = ;
+        // const propertyColor = ;
+        // this.drawArrow(ctx, propertyWidth, propertyHeight, propertyStartX, propertyStartY, propertyEndX, propertyEndY, propertyColor);
+        this.drawArrow(ctx, 50, 70, 170, 130, 80, "black");
+        return {};
     }
 
-    getMenuOptions() {
-        return Object.keys(GRAPH_ITEM_CONSTRUCTORS).map((graphItem) => {
-            return (
-                <th key={graphItem}>
-                    <span id={`${graphItem}`} draggable={true} onDragStart={this.onDragStart}>
-                        <p>{graphItem}</p>
-                    </span>
-                </th>
-            );
-        });
-    }
-
-    getSubGraph() {
-        const { subgraph } = this.state;
-        return Object.keys(subgraph).map(function(itemKey) {
-            const { graphItem, x, y } = subgraph[itemKey];
-            if (graphItem instanceof Entity) {
-                return <EntityComponent key={itemKey} id={itemKey} x={x} y={y}/>;
-            } else if (graphItem instanceof Literal) {
-                return <LiteralComponent key={itemKey} id={itemKey} x={x} y={y}/>;
-            } else {return null;}
-        });
+    componentDidMount() {
+        const {ctx, width, height} = this.prepareCanvas();
+        const {menuWidth, menuHeight, editorWidth, editorHeight} = this.addBackground(ctx, width, height);
+        this.addMenuItems(ctx, menuWidth, menuHeight);
     }
 
     render() {
         return (
             <div id="SubGraphEditor">
-                {/*///////////////// Menu of graph items ///////////////*/}
-                <div id="GraphItemMenu">
-                    <table id="MenuOptions">
-                        <thead><tr>{this.getMenuOptions()}</tr></thead>
-                    </table>
-                </div>
-
-                {/*///////////////// Canvas to build subgraph ///////////////*/}
-                <div id="SubGraphCanvas" onDrop={this.onDrop} onDragOver={this.onDragOver}>
-                    {this.getSubGraph()}
-                </div>
+                <canvas id="SubGraphEditorCanvas" width={800} height={700}></canvas>
             </div>
         );
     }
