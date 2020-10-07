@@ -1,6 +1,6 @@
 import React from "react";
-import Entity from "../graph/Entity.js"
-import Literal from "../graph/Literal.js";
+// import Entity from "../graph/Entity.js"
+// import Literal from "../graph/Literal.js";
 
 class SubGraphEditor extends React.Component {
 
@@ -30,7 +30,7 @@ class SubGraphEditor extends React.Component {
         return {menuWidth, menuHeight, editorWidth, editorHeight};
     }
 
-    drawCircle(ctx, top, left, diameter, color) {
+    drawCircle(ctx, left, top, diameter, color) {
         const radius = diameter/2;
         const x = left + radius;
         const y = top + radius;
@@ -39,9 +39,9 @@ class SubGraphEditor extends React.Component {
         ctx.fill();
     }
 
-    drawRect(ctx, top, left, width, height, color) {
+    drawRect(ctx, left, top, width, height, color) {
         ctx.fillStyle = color;
-        ctx.fillRect(top, left, width, height);
+        ctx.fillRect(left, top, width, height);
     }
 
     drawArrow(ctx, width, startX, startY, endX, endY, color) {
@@ -88,26 +88,32 @@ class SubGraphEditor extends React.Component {
     }
 
     addMenuItems(ctx, menuWidth, menuHeight) {
-        // const entitytop = ;
-        // const entityleft = ;
-        // const entityDiameter = ;
-        // const entityColor = ;
-        // this.drawCircle(ctx, 0, 0, 100, entityColor);
-        // const literaltop = ;
-        // const literalleft = ;
-        // const literalWidth = ;
-        // const literalHeight = ;
-        // const literalColor = ;
-        // this.drawRect(ctx, literaltop, literalleft, literalWidth, literalHeight, literalColor);
-        // const propertyWidth = ;
-        // const propertyHeight = ;
-        // const propertyStartX = ;
-        // const propertyStartY = ;
-        // const propertyEndX = ;
-        // const propertyEndY = ;
-        // const propertyColor = ;
-        // this.drawArrow(ctx, propertyWidth, propertyHeight, propertyStartX, propertyStartY, propertyEndX, propertyEndY, propertyColor);
-        this.drawArrow(ctx, 50, 70, 170, 130, 80, "black");
+        const itemCount = 3;
+        const itemWidth = .8 * menuHeight;
+        const spacing = itemWidth * .2;
+
+        const entityTop = (menuHeight - itemWidth)/2;
+        const entityLeft = (menuWidth - itemWidth * itemCount - (itemCount - 1) * spacing)/2;
+        const entityDiameter = itemWidth;
+        const entityColor = "#c22121";
+        console.log(entityTop, entityLeft, entityDiameter);
+        this.drawCircle(ctx, entityLeft, entityTop, entityDiameter, entityColor);
+
+        const literalHeight = itemWidth * .7;
+        const literalTop = entityTop + (itemWidth - literalHeight)/2;
+        const literalLeft = entityLeft + itemWidth + spacing;
+        const literalWidth = itemWidth;
+        const literalColor = "#2424d1";
+        console.log(literalTop, literalLeft, literalWidth, literalHeight);
+        this.drawRect(ctx, literalLeft, literalTop, literalWidth, literalHeight, literalColor);
+
+        const propertyWidth = itemWidth * .4;
+        const propertyStartX = entityLeft + itemWidth * 2 + spacing * 2;
+        const propertyStartY = entityTop + itemWidth/2;
+        const propertyEndX = propertyStartX + itemWidth;
+        const propertyEndY = propertyStartY;
+        const propertyColor = "black";
+        this.drawArrow(ctx, propertyWidth, propertyStartX, propertyStartY, propertyEndX, propertyEndY, propertyColor);
         return {};
     }
 
