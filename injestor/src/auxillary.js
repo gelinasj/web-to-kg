@@ -28,4 +28,9 @@ function lineContainsPoint(line, refX, refY, lineX, matchSide, pX, pY) {
     }
 }
 
-export { createLine, lteq, gteq, lineContainsPoint };
+function getPosnWithBounds(p, min=-Infinity, max=Infinity) {
+    let out = p > min ? p : min;
+    return out < max ? out : max;
+}
+
+export { createLine, lteq, gteq, lineContainsPoint, getPosnWithBounds };

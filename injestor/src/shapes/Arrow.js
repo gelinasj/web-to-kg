@@ -1,4 +1,4 @@
-import { createLine, lineContainsPoint } from "../auxillary.js";
+import { createLine, lineContainsPoint, getPosnWithBounds } from "../auxillary.js";
 
 class Arrow {
     constructor(width, startX, startY, endX, endY, color, borderColor) {
@@ -141,7 +141,9 @@ class Arrow {
         return pY - this.startY;
     }
 
-    setLocation(x, y) {
+    setLocation(x, y, optional={}) {
+        x = getPosnWithBounds(x, optional.minX, optional.maxX);
+        y = getPosnWithBounds(y, optional.minY, optional.maxY);
         const xChange = x - this.startX;
         const yChange = y - this.startY;
         this.startX = x;

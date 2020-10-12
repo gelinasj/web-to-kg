@@ -143,10 +143,13 @@ class SubGraphEditor extends React.Component {
         return graphPairs;
     }
 
+    getCanvasPosn(e) {
+        return [e.clientX - this.canvasLeft, e.clientY - this.canvasTop];
+    }
+
     // @TODO: clean up
     onMouseDown(e) {
-        const canvasX = e.clientX - this.canvasLeft;
-        const canvasY = e.clientY - this.canvasTop;
+        const [canvasX, canvasY] = this.getCanvasPosn(e);
         const clickedMenuItem = this.menuItems.find(
             (menuItem) => menuItem.shape.containsPoint(canvasX, canvasY));
         let newGraphItem, itemId, firstDrag;
@@ -178,15 +181,18 @@ class SubGraphEditor extends React.Component {
             if(firstDrag) {
                 if(e.clientY - this.canvasTop < this.menuHeight) {
                     delete this.subgraph[itemId];
-                }
+                } else{
+                    const [canvasX, canvasY] = this.getCanvasPosn(e);
+                    const optional = {minY:this.menuHeight};
+                    this.subgraph[itemId].setLocation(canvasX - xOffset, canvasY - yOffset, optional);
+                };
             }
         }
         this.redraw();
     }
 
     onMouseMove(e) {
-        const canvasX = e.clientX - this.canvasLeft;
-        const canvasY = e.clientY - this.canvasTop;
+        const [canvasX, canvasY] = this.getCanvasPosn(e);
         if(this.draggedItem !== null) {
             const { itemId, firstDrag, xOffset, yOffset } = this.draggedItem;
             const draggedGraphItem = this.subgraph[itemId];

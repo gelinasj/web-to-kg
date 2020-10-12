@@ -1,3 +1,5 @@
+import { getPosnWithBounds } from "../auxillary.js";
+
 class Circle {
     constructor(top, left, diameter, color, borderColor) {
         this.top = top;
@@ -42,9 +44,9 @@ class Circle {
         return pY - this.top;
     }
 
-    setLocation(x, y) {
-        this.left = x;
-        this.top = y;
+    setLocation(x, y, optional={}) {
+        this.left = getPosnWithBounds(x, optional.minX, optional.maxX);
+        this.top = getPosnWithBounds(y, optional.minY, optional.maxY);
     }
 }
 

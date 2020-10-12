@@ -22,9 +22,9 @@ class GraphItem {
         return this.shape.getYOffset(pY);
     }
 
-    setLocation(canvasX, canvasY, pX, pY) {
+    setLocation(canvasX, canvasY, pX, pY, optional={}) {
         this.updateTime();
-        this.shape.setLocation(canvasX, canvasY, pX, pY);
+        this.shape.setLocation(canvasX, canvasY, pX, pY, optional);
     }
 
     containsPoint(pX, pY) {
