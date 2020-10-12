@@ -1,13 +1,14 @@
 import { createLine, lineContainsPoint } from "../auxillary.js";
 
 class Arrow {
-    constructor(width, startX, startY, endX, endY, color) {
+    constructor(width, startX, startY, endX, endY, color, borderColor) {
         this.width = width;
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;
         this.endY = endY;
         this.color = color;
+        this.borderColor = borderColor;
         this.headlength = 30;
     }
 
@@ -30,7 +31,7 @@ class Arrow {
     get headBottomPoint() {
         const x = this.endX - this.headlength * Math.cos(this.arrowAngle)
         const y = this.endY + this.headlength * Math.sin(this.arrowAngle)
-        return { x, y }
+        return { x, y };
     }
 
     get wingPoints() {
@@ -68,19 +69,10 @@ class Arrow {
     }
 
     draw(ctx) {
-        // Draw head
         const {
             rightWing: { x:rightWingX , y:rightWingY },
             leftWing: { x:leftWingX , y:leftWingY },
         } = this.wingPoints;
-        ctx.beginPath();
-        ctx.moveTo(this.endX, this.endY);
-        ctx.lineTo(rightWingX, rightWingY);
-        ctx.lineTo(leftWingX, leftWingY);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-
-        // Draw body
         const {
             br: { x:tailBottomRightX, y:tailBottomRightY },
             bl: { x:tailBottomLeftX, y:tailBottomLeftY },
@@ -91,7 +83,14 @@ class Arrow {
         ctx.moveTo(tailBottomRightX, tailBottomRightY);
         ctx.lineTo(tailBottomLeftX, tailBottomLeftY);
         ctx.lineTo(tailTopLeftX, tailTopLeftY);
+        ctx.lineTo(leftWingX, leftWingY);
+        ctx.lineTo(this.endX, this.endY);
+        ctx.lineTo(rightWingX, rightWingY);
         ctx.lineTo(tailTopRightX, tailTopRightY);
+        ctx.closePath();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = this.borderColor;
+        ctx.stroke();
         ctx.fillStyle = this.color;
         ctx.fill();
     }
@@ -132,6 +131,23 @@ class Arrow {
 
     containsPoint(pX, pY) {
         return this.headContainsPoint(pX, pY) || this.tailContainsPoint(pX, pY);
+    }
+
+    getXOffset(pX) {
+        return pX - this.startX;
+    }
+
+    getYOffset(pY) {
+        return pY - this.startY;
+    }
+
+    setLocation(x, y) {
+        const xChange = x - this.startX;
+        const yChange = y - this.startY;
+        this.startX = x;
+        this.startY = y;
+        this.endX += xChange;
+        this.endY += yChange;
     }
 }
 
