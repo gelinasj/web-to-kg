@@ -45,8 +45,11 @@ class Circle {
     }
 
     setLocation(x, y, optional={}) {
-        this.left = getPosnWithBounds(x, optional.minX, optional.maxX);
-        this.top = getPosnWithBounds(y, optional.minY, optional.maxY);
+        const { minX, maxX, minY, maxY } = optional;
+        const leftMaxX = maxX === undefined ? maxX : maxX - this.diameter;
+        const topMaxY = maxY === undefined ? maxY : maxY - this.diameter;
+        this.left = getPosnWithBounds(x, minX, leftMaxX);
+        this.top = getPosnWithBounds(y, minY, topMaxY);
     }
 }
 

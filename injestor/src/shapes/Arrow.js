@@ -93,6 +93,14 @@ class Arrow {
         ctx.stroke();
         ctx.fillStyle = this.color;
         ctx.fill();
+
+        // const { left, right, top, bottom } = this.getBoundingBox();
+        // ctx.beginPath();
+        // ctx.rect(left, top, right - left, bottom - top);
+        // ctx.closePath();
+        // ctx.lineWidth = 3;
+        // ctx.strokeStyle = "black";
+        // ctx.stroke();
     }
 
     headContainsPoint(pX, pY) {
@@ -141,15 +149,38 @@ class Arrow {
         return pY - this.startY;
     }
 
-    setLocation(x, y, optional={}) {
-        x = getPosnWithBounds(x, optional.minX, optional.maxX);
-        y = getPosnWithBounds(y, optional.minY, optional.maxY);
-        const xChange = x - this.startX;
-        const yChange = y - this.startY;
-        this.startX = x;
-        this.startY = y;
+    translateArrow(xChange, yChange) {
+        this.startX += xChange;
+        this.startY += yChange;
         this.endX += xChange;
         this.endY += yChange;
+    }
+
+    get points() {
+        const pointsObj = { ...this.wingPoints, ...this.bodyPoints, tp:{x:this.endX, y:this.endY} };
+        return Object.values(pointsObj).map((pointObj) => [pointObj.x, pointObj.y]);
+    }
+
+    get boundingBox() {
+        const left = Math.min(...this.points.map(([x,y]) => x));
+        const right = Math.max(...this.points.map(([x,y]) => x));
+        const top = Math.min(...this.points.map(([x,y]) => y));
+        const bottom = Math.max(...this.points.map(([x,y]) => y));
+        return { left, right, top, bottom };
+    }
+
+    setLocation(x, y, optional={}) {
+        const { left, right, top, bottom } = this.boundingBox;
+        const tmpArrow = new Arrow(this.width, this.startX, this.startY,
+            this.endX, this.endY, this.color, this.borderColor);
+        tmpArrow.translateArrow(x - this.startX, y - this.startY);
+        const { left:leftNew, right:rightNew, top:topNew, bottom:bottomNew } = tmpArrow.boundingBox;
+        const { minX, maxX, minY, maxY } = optional;
+        const leftMaxX = maxX === undefined ? maxX : maxX - (right - left);
+        const topMaxY = maxY === undefined ? maxY : maxY - (bottom - top);
+        const xChange = getPosnWithBounds(leftNew, minX, leftMaxX) - left;
+        const yChange = getPosnWithBounds(topNew, minY, topMaxY) - top;
+        this.translateArrow(xChange, yChange);
     }
 }
 

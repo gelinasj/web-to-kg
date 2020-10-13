@@ -35,8 +35,11 @@ class Rect {
     }
 
     setLocation(x, y, optional={}) {
-        this.left = getPosnWithBounds(x, optional.minX, optional.maxX);
-        this.top = getPosnWithBounds(y, optional.minY, optional.maxY);
+        const { minX, maxX, minY, maxY } = optional;
+        const leftMaxX = maxX === undefined ? maxX : maxX - this.width;
+        const topMaxY = maxY === undefined ? maxY : maxY - this.height;
+        this.left = getPosnWithBounds(x, minX, leftMaxX);
+        this.top = getPosnWithBounds(y, minY, topMaxY);
     }
 }
 

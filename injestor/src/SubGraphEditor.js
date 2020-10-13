@@ -59,10 +59,8 @@ class SubGraphEditor extends React.Component {
     }
 
     drawBackground(ctx) {
-        ctx.fillStyle = this.menuColor;
-        ctx.fillRect(0, 0, this.menuWidth, this.menuHeight);
-        ctx.fillStyle = this.editorColor;
-        ctx.fillRect(0, this.menuHeight, this.editorWidth, this.editorHeight, this.editorColor);
+        new Rect(0, 0, this.menuWidth, this.menuHeight, this.menuColor).draw(ctx);
+        new Rect(this.menuHeight, 0, this.editorWidth, this.editorHeight, this.editorColor).draw(ctx);
     }
 
     createMenuItems() {
@@ -175,30 +173,32 @@ class SubGraphEditor extends React.Component {
     }
 
     onMouseUp(e) {
-        if(this.draggedItem !== null) {
-            const { itemId, firstDrag, xOffset, yOffset } = this.draggedItem
-            this.draggedItem = null;
-            if(firstDrag) {
-                if(e.clientY - this.canvasTop < this.menuHeight) {
-                    delete this.subgraph[itemId];
-                } else{
-                    const [canvasX, canvasY] = this.getCanvasPosn(e);
-                    const optional = {minY:this.menuHeight};
-                    this.subgraph[itemId].setLocation(canvasX - xOffset, canvasY - yOffset, optional);
-                };
-            }
+        if(this.draggedItem === null) {return;}
+        const { itemId, firstDrag, xOffset, yOffset } = this.draggedItem;
+        this.draggedItem = null;
+        const [canvasX, canvasY] = this.getCanvasPosn(e);
+        if(firstDrag) {
+            if(canvasY < this.menuHeight) {
+                delete this.subgraph[itemId];
+            } else{
+                const bounds = {minY:this.menuHeight};
+                this.subgraph[itemId].setLocation(canvasX - xOffset, canvasY - yOffset, bounds);
+            };
         }
         this.redraw();
     }
 
     onMouseMove(e) {
+        if(this.draggedItem === null) {return;}
         const [canvasX, canvasY] = this.getCanvasPosn(e);
-        if(this.draggedItem !== null) {
-            const { itemId, firstDrag, xOffset, yOffset } = this.draggedItem;
-            const draggedGraphItem = this.subgraph[itemId];
-            draggedGraphItem.setLocation(canvasX - xOffset, canvasY - yOffset);
-        }
-        this.redraw()
+        const { itemId, firstDrag, xOffset, yOffset } = this.draggedItem;
+        const draggedGraphItem = this.subgraph[itemId];
+        const minY = (firstDrag ? 0 : this.menuHeight)+2;
+        const bounds = {minX:0+2, minY, maxX: this.canvasWidth-2, maxY: this.canvasHeight-2};
+        draggedGraphItem.setLocation(canvasX - xOffset, canvasY - yOffset, bounds);
+        this.draggedItem.xOffset = draggedGraphItem.getXOffset(canvasX);
+        this.draggedItem.yOffset = draggedGraphItem.getYOffset(canvasY);
+        this.redraw();
     }
 
     render() {
