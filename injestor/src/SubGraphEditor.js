@@ -66,7 +66,7 @@ class SubGraphEditor extends React.Component {
     createMenuItems() {
         // General constants
         this.menuItemCount = 3;
-        this.menuItemWidth = .8 * this.menuHeight;
+        this.menuItemWidth = .75 * this.menuHeight;
         this.menuItemSpacing = this.menuItemWidth * .2;
         this.menuStartX = (this.menuWidth - this.menuItemWidth * this.menuItemCount - (this.menuItemCount - 1) * this.menuItemSpacing)/2;
 
@@ -147,9 +147,9 @@ class SubGraphEditor extends React.Component {
 
     // @TODO: clean up
     onMouseDown(e) {
-        const [canvasX, canvasY] = this.getCanvasPosn(e);
+        const [mouseX, mouseY] = this.getCanvasPosn(e);
         const clickedMenuItem = this.menuItems.find(
-            (menuItem) => menuItem.shape.containsPoint(canvasX, canvasY));
+            (menuItem) => menuItem.shape.containsPoint(mouseX, mouseY));
         let newGraphItem, itemId, firstDrag;
         if(clickedMenuItem !== undefined) {
             newGraphItem = clickedMenuItem.createGraphItem();
@@ -157,7 +157,7 @@ class SubGraphEditor extends React.Component {
             firstDrag = true;
         } else {
             const sortedClickedGraphItems = this.sortGraph(this.subgraph).filter(([itemId, graphItem]) => {
-                return graphItem.containsPoint(canvasX, canvasY);
+                return graphItem.containsPoint(mouseX, mouseY);
             });
             if(sortedClickedGraphItems.length === 0) {return;}
             [itemId, newGraphItem] = sortedClickedGraphItems[sortedClickedGraphItems.length - 1];
@@ -166,8 +166,8 @@ class SubGraphEditor extends React.Component {
         newGraphItem.updateTime();
         this.draggedItem = {
             itemId, firstDrag,
-            xOffset: newGraphItem.getXOffset(canvasX),
-            yOffset: newGraphItem.getYOffset(canvasY),
+            xOffset: newGraphItem.getXOffset(mouseX),
+            yOffset: newGraphItem.getYOffset(mouseY),
         };
         this.redraw();
     }
@@ -176,13 +176,13 @@ class SubGraphEditor extends React.Component {
         if(this.draggedItem === null) {return;}
         const { itemId, firstDrag, xOffset, yOffset } = this.draggedItem;
         this.draggedItem = null;
-        const [canvasX, canvasY] = this.getCanvasPosn(e);
+        const [mouseX, mouseY] = this.getCanvasPosn(e);
         if(firstDrag) {
-            if(canvasY < this.menuHeight) {
+            if(mouseY < this.menuHeight) {
                 delete this.subgraph[itemId];
             } else{
                 const bounds = {minY:this.menuHeight};
-                this.subgraph[itemId].setLocation(canvasX - xOffset, canvasY - yOffset, bounds);
+                this.subgraph[itemId].setLocation(mouseX - xOffset, mouseY - yOffset, bounds);
             };
         }
         this.redraw();
@@ -190,14 +190,14 @@ class SubGraphEditor extends React.Component {
 
     onMouseMove(e) {
         if(this.draggedItem === null) {return;}
-        const [canvasX, canvasY] = this.getCanvasPosn(e);
+        const [mouseX, mouseY] = this.getCanvasPosn(e);
         const { itemId, firstDrag, xOffset, yOffset } = this.draggedItem;
         const draggedGraphItem = this.subgraph[itemId];
         const minY = (firstDrag ? 0 : this.menuHeight)+2;
         const bounds = {minX:0+2, minY, maxX: this.canvasWidth-2, maxY: this.canvasHeight-2};
-        draggedGraphItem.setLocation(canvasX - xOffset, canvasY - yOffset, bounds);
-        this.draggedItem.xOffset = draggedGraphItem.getXOffset(canvasX);
-        this.draggedItem.yOffset = draggedGraphItem.getYOffset(canvasY);
+        draggedGraphItem.setLocation(mouseX - xOffset, mouseY - yOffset, bounds);
+        this.draggedItem.xOffset = draggedGraphItem.getXOffset(mouseX);
+        this.draggedItem.yOffset = draggedGraphItem.getYOffset(mouseY);
         this.redraw();
     }
 

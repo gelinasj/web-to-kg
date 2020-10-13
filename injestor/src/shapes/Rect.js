@@ -7,6 +7,7 @@ class Rect {
         this.width = width;
         this.height = height;
         this.color = color;
+        this.shouldShadow = false;
         this.borderColor = borderColor;
     }
 
@@ -16,6 +17,10 @@ class Rect {
         ctx.closePath();
         ctx.lineWidth = 3;
         ctx.strokeStyle = this.borderColor;
+        if(this.shouldShadow) {
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = "black";
+        }
         ctx.stroke();
         ctx.fillStyle = this.color;
         ctx.fill();

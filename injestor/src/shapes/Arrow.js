@@ -9,7 +9,9 @@ class Arrow {
         this.endY = endY;
         this.color = color;
         this.borderColor = borderColor;
-        this.headlength = 30;
+        this.shouldShadow = false;
+        this.tailWidth = this.width/8;
+        this.headlength = 20;
     }
 
     get dx() {
@@ -50,8 +52,8 @@ class Arrow {
 
     get bodyPoints() {
         const { x:headBottomX , y:headBottomY } = this.headBottomPoint;
-        const tailCornerDx = (this.width/6) * Math.cos(this.arrowAngleCompl);
-        const tailCornerDy = (this.width/6) * Math.sin(this.arrowAngleCompl);
+        const tailCornerDx = this.tailWidth * Math.cos(this.arrowAngleCompl);
+        const tailCornerDy = this.tailWidth * Math.sin(this.arrowAngleCompl);
         const tailBottomRightX = this.startX + tailCornerDx;
         const tailBottomRightY = this.startY + tailCornerDy;
         const tailBottomLeftX = this.startX - tailCornerDx;
@@ -90,17 +92,13 @@ class Arrow {
         ctx.closePath();
         ctx.lineWidth = 3;
         ctx.strokeStyle = this.borderColor;
+        if(this.shouldShadow) {
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = "gray";
+        }
         ctx.stroke();
         ctx.fillStyle = this.color;
         ctx.fill();
-
-        // const { left, right, top, bottom } = this.getBoundingBox();
-        // ctx.beginPath();
-        // ctx.rect(left, top, right - left, bottom - top);
-        // ctx.closePath();
-        // ctx.lineWidth = 3;
-        // ctx.strokeStyle = "black";
-        // ctx.stroke();
     }
 
     headContainsPoint(pX, pY) {
@@ -174,7 +172,7 @@ class Arrow {
         const tmpArrow = new Arrow(this.width, this.startX, this.startY,
             this.endX, this.endY, this.color, this.borderColor);
         tmpArrow.translateArrow(x - this.startX, y - this.startY);
-        const { left:leftNew, right:rightNew, top:topNew, bottom:bottomNew } = tmpArrow.boundingBox;
+        const { left:leftNew, top:topNew } = tmpArrow.boundingBox;
         const { minX, maxX, minY, maxY } = optional;
         const leftMaxX = maxX === undefined ? maxX : maxX - (right - left);
         const topMaxY = maxY === undefined ? maxY : maxY - (bottom - top);

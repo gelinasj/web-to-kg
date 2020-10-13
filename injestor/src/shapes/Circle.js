@@ -7,6 +7,7 @@ class Circle {
         this.diameter = diameter;
         this.color = color;
         this.borderColor = borderColor;
+        this.shouldShadow = false;
     }
 
     get radius() {
@@ -26,6 +27,10 @@ class Circle {
         ctx.closePath();
         ctx.lineWidth = 3;
         ctx.strokeStyle = this.borderColor;
+        if(this.shouldShadow) {
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = "gray";
+        }
         ctx.stroke();
         ctx.fillStyle = this.color;
         ctx.fill();
