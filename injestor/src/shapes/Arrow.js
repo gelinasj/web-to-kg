@@ -1,7 +1,9 @@
 import { createLine, lineContainsPoint, getPosnWithBounds } from "../auxillary.js";
+import Shape from "./Shape.js";
 
-class Arrow {
+class Arrow extends Shape {
     constructor(width, startX, startY, endX, endY, color, borderColor) {
+        super();
         this.width = width;
         this.startX = startX;
         this.startY = startY;
@@ -9,7 +11,6 @@ class Arrow {
         this.endY = endY;
         this.color = color;
         this.borderColor = borderColor;
-        this.shouldShadow = false;
         this.tailWidth = this.width/8;
         this.headlength = 20;
     }
@@ -70,6 +71,13 @@ class Arrow {
         };
     }
 
+    get connectors() {
+        return [
+            [this.startX, this.startY],
+            [this.endX, this.endY]
+        ];
+    }
+
     draw(ctx) {
         const {
             rightWing: { x:rightWingX , y:rightWingY },
@@ -92,13 +100,10 @@ class Arrow {
         ctx.closePath();
         ctx.lineWidth = 3;
         ctx.strokeStyle = this.borderColor;
-        if(this.shouldShadow) {
-            ctx.shadowBlur = 6;
-            ctx.shadowColor = "gray";
-        }
         ctx.stroke();
         ctx.fillStyle = this.color;
         ctx.fill();
+        super.draw(ctx);
     }
 
     headContainsPoint(pX, pY) {

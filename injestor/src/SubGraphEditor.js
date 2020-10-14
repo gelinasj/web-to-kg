@@ -110,6 +110,7 @@ class SubGraphEditor extends React.Component {
     draw(ctx) {
         ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         this.drawBackground(ctx);
+        this.menuItems.forEach((menuItem) => menuItem.shape.shouldDrawConnectors());
         this.menuItems.forEach((menuItem) => menuItem.shape.draw(ctx));
         this.sortGraph(this.subgraph).forEach(([itemId, graphItem]) => graphItem.draw(ctx));
     }

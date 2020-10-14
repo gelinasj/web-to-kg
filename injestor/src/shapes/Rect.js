@@ -1,14 +1,26 @@
 import { getPosnWithBounds } from "../auxillary.js";
+import Shape from "./Shape.js";
 
-class Rect {
+class Rect extends Shape {
     constructor(top, left, width, height, color, borderColor) {
+        super();
         this.top = top;
         this.left = left;
         this.width = width;
         this.height = height;
         this.color = color;
-        this.shouldShadow = false;
         this.borderColor = borderColor;
+    }
+
+    get connectors() {
+        const halfWidth = this.width/2;
+        const halfHeight = this.height/2;
+        return [
+            [this.left+halfWidth, this.top],
+            [this.left+halfWidth, this.top+this.height],
+            [this.left, this.top+halfHeight],
+            [this.left+this.width, this.top+halfHeight]
+        ];
     }
 
     draw(ctx) {
@@ -17,13 +29,10 @@ class Rect {
         ctx.closePath();
         ctx.lineWidth = 3;
         ctx.strokeStyle = this.borderColor;
-        if(this.shouldShadow) {
-            ctx.shadowBlur = 6;
-            ctx.shadowColor = "black";
-        }
         ctx.stroke();
         ctx.fillStyle = this.color;
         ctx.fill();
+        super.draw(ctx);
     }
 
     containsPoint(pX, pY) {

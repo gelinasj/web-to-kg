@@ -1,7 +1,9 @@
 import { getPosnWithBounds } from "../auxillary.js";
+import Shape from "./Shape.js";
 
-class Circle {
+class Circle extends Shape {
     constructor(top, left, diameter, color, borderColor) {
+        super();
         this.top = top;
         this.left = left;
         this.diameter = diameter;
@@ -20,6 +22,15 @@ class Circle {
         return { x, y };
     }
 
+    get connectors() {
+        return [
+            [this.left+this.radius, this.top],
+            [this.left+this.radius, this.top+this.diameter],
+            [this.left, this.top+this.radius],
+            [this.left+this.diameter, this.top+this.radius]
+        ];
+    }
+
     draw(ctx) {
         const { x, y } = this.center;
         ctx.beginPath();
@@ -27,13 +38,10 @@ class Circle {
         ctx.closePath();
         ctx.lineWidth = 3;
         ctx.strokeStyle = this.borderColor;
-        if(this.shouldShadow) {
-            ctx.shadowBlur = 6;
-            ctx.shadowColor = "gray";
-        }
         ctx.stroke();
         ctx.fillStyle = this.color;
         ctx.fill();
+        super.draw(ctx);
     }
 
     containsPoint(pX, pY) {

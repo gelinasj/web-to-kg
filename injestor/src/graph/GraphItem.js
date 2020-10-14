@@ -10,6 +10,10 @@ class GraphItem {
         this.lastUpdated = new Date().getTime();
     }
 
+    doDrawConnectors() {
+        this.shape.drawConnectors();
+    }
+
     draw(ctx) {
         this.shape.draw(ctx);
     }
