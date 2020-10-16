@@ -10,12 +10,16 @@ class GraphItem {
         this.lastUpdated = new Date().getTime();
     }
 
-    doDrawConnectors() {
-        this.shape.drawConnectors();
+    shouldDrawConnectors() {
+        this.shape.shouldDrawConnectors();
     }
 
     draw(ctx) {
         this.shape.draw(ctx);
+    }
+
+    resize(resizerId, pX, pY, bounds) {
+        this.shape.resize(resizerId, pX, pY, bounds);
     }
 
     getXOffset(pX) {
@@ -33,6 +37,26 @@ class GraphItem {
 
     containsPoint(pX, pY) {
         return this.shape.containsPoint(pX, pY);
+    }
+
+    isResizable() {
+        return false;
+    }
+
+    getClickedResizer(pX, pY) {
+        return this.shape.getClickedResizer(pX, pY);
+    }
+
+    get connectors() {
+        return this.shape.connectors;
+    }
+
+    focus() {
+        this.shape.focus();
+    }
+
+    unfocus() {
+        this.shape.unfocus();
     }
 }
 

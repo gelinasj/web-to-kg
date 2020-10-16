@@ -1,14 +1,15 @@
 import { getPosnWithBounds } from "../auxillary.js";
-import Shape from "./Shape.js";
+import { Shape, TO, FROM } from "./Shape.js";
 
 class Circle extends Shape {
-    constructor(top, left, diameter, color, borderColor) {
+    constructor(top, left, diameter, color, borderColor, dotted=false) {
         super();
         this.top = top;
         this.left = left;
         this.diameter = diameter;
         this.color = color;
         this.borderColor = borderColor;
+        this.dotted = dotted;
         this.shouldShadow = false;
     }
 
@@ -23,24 +24,41 @@ class Circle extends Shape {
     }
 
     get connectors() {
-        return [
-            [this.left+this.radius, this.top],
-            [this.left+this.radius, this.top+this.diameter],
-            [this.left, this.top+this.radius],
-            [this.left+this.diameter, this.top+this.radius]
-        ];
+        return {
+            top: {x:this.left+this.radius, y:this.top, accepts: [TO, FROM], provides: []},
+            bottom: {x:this.left+this.radius, y:this.top+this.diameter, accepts: [TO, FROM], provides: []},
+            left: {x:this.left, y:this.top+this.radius, accepts: [TO, FROM], provides: []},
+            right: {x:this.left+this.diameter, y:this.top+this.radius, accepts: [TO, FROM], provides: []}
+        };
     }
 
     draw(ctx) {
+        const lineCount = 5;
         const { x, y } = this.center;
-        ctx.beginPath();
-        ctx.arc(x, y, this.radius, 0, 2*Math.PI);
-        ctx.closePath();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = this.borderColor;
-        ctx.stroke();
-        ctx.fillStyle = this.color;
-        ctx.fill();
+        if(this.dotted) {
+            for(let angle = 0; angle < 2*Math.PI; angle += Math.PI/lineCount) {
+                ctx.beginPath();
+                ctx.arc(x, y, this.radius, angle, angle + Math.PI/lineCount/2);
+                ctx.closePath();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = this.borderColor;
+                ctx.stroke();
+            }
+        } else {
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = this.borderColor;
+            if(this.shouldShadow) {
+                ctx.shadowColor = 'black';
+                ctx.shadowBlur = 5;
+            }
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(x, y, this.radius, 0, 2*Math.PI);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.fill();
+        }
+        ctx.shadowBlur = 0;
         super.draw(ctx);
     }
 

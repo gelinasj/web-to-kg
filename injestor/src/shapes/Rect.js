@@ -1,5 +1,5 @@
 import { getPosnWithBounds } from "../auxillary.js";
-import Shape from "./Shape.js";
+import { Shape, TO } from "./Shape.js";
 
 class Rect extends Shape {
     constructor(top, left, width, height, color, borderColor) {
@@ -15,23 +15,28 @@ class Rect extends Shape {
     get connectors() {
         const halfWidth = this.width/2;
         const halfHeight = this.height/2;
-        return [
-            [this.left+halfWidth, this.top],
-            [this.left+halfWidth, this.top+this.height],
-            [this.left, this.top+halfHeight],
-            [this.left+this.width, this.top+halfHeight]
-        ];
+        return {
+            top: {x:this.left+halfWidth, y:this.top, accepts: [TO], provides: []},
+            bottom: {x:this.left+halfWidth, y:this.top+this.height, accepts: [TO], provides: []},
+            left: {x:this.left, y:this.top+halfHeight, accepts: [TO], provides: []},
+            right: {x:this.left+this.width, y:this.top+halfHeight, accepts: [TO], provides: []}
+        };
     }
 
     draw(ctx) {
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = this.borderColor;
+        if(this.shouldShadow) {
+            ctx.shadowColor = 'black';
+            ctx.shadowBlur = 5;
+        }
+        ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.rect(this.left, this.top, this.width, this.height);
         ctx.closePath();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = this.borderColor;
         ctx.stroke();
-        ctx.fillStyle = this.color;
         ctx.fill();
+        ctx.shadowBlur = 0;
         super.draw(ctx);
     }
 

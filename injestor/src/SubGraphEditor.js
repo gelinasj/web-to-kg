@@ -5,6 +5,8 @@ import Arrow from "./shapes/Arrow.js";
 import Entity from "./graph/Entity.js";
 import Literal from "./graph/Literal.js";
 import Connection from "./graph/Connection.js";
+import DragAction from "./drag-actions/DragAction.js";
+import { sortGraph, setIntersection } from "./auxillary.js";
 
 class SubGraphEditor extends React.Component {
 
@@ -12,7 +14,8 @@ class SubGraphEditor extends React.Component {
         super();
         this.subgraph = {};
         this.menuItems = [];
-        this.draggedItem = null;
+        this.dragAction = null;
+
         this.onMouseDown = this.onMouseDown.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
         this.onMouseMove = this.onMouseMove.bind(this);
@@ -28,13 +31,9 @@ class SubGraphEditor extends React.Component {
         this.menuItemCount = null;
         this.menuItemWidth = null;
         this.menuItemSpacing = null;
-    }
-
-    addToSubgraph(graphItem) {
-        const subgraphKeys = Object.keys(this.subgraph);
-        const itemId = subgraphKeys.length && (Math.max(...subgraphKeys) + 1);
-        this.subgraph[itemId] = graphItem;
-        return itemId;
+        this.bounds = null;
+        this.proximateConnector = null;
+        this.focus = null;
     }
 
     getCanvas() {
@@ -43,7 +42,8 @@ class SubGraphEditor extends React.Component {
         return {canvas, ctx};
     }
 
-    initializeCanvasConstants(canvas) {
+    initializeCanvasConstants() {
+        const { canvas } = this.getCanvas();
         const { x, y } = canvas.getBoundingClientRect();
         const { width, height } = canvas;
         this.canvasLeft = x;
@@ -56,11 +56,7 @@ class SubGraphEditor extends React.Component {
         this.editorColor = "#e4eeb2";
         this.editorWidth = this.canvasWidth;
         this.editorHeight = this.canvasHeight - this.menuHeight;
-    }
-
-    drawBackground(ctx) {
-        new Rect(0, 0, this.menuWidth, this.menuHeight, this.menuColor).draw(ctx);
-        new Rect(this.menuHeight, 0, this.editorWidth, this.editorHeight, this.editorColor).draw(ctx);
+        this.bounds = {minX:0+2, minY: this.menuHeight+2, maxX: this.canvasWidth-2, maxY: this.canvasHeight-2};
     }
 
     createMenuItems() {
@@ -107,17 +103,51 @@ class SubGraphEditor extends React.Component {
         });
     }
 
-    draw(ctx) {
-        ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-        this.drawBackground(ctx);
-        this.menuItems.forEach((menuItem) => menuItem.shape.shouldDrawConnectors());
-        this.menuItems.forEach((menuItem) => menuItem.shape.draw(ctx));
-        this.sortGraph(this.subgraph).forEach(([itemId, graphItem]) => graphItem.draw(ctx));
+    getProximityIndicator(x, y) {
+        const radius = 20
+        return new Circle(y - radius, x - radius, radius*2, undefined, "black", true);
     }
 
-    redraw() {
+    getProximateConnector() {
+        if(this.dragAction === null) {return null};
+        const draggedGraphItem = this.subgraph[this.dragAction.itemId];
+        return Object.values(draggedGraphItem.connectors).reduce((foundConnector, {x, y, accepts, provides}) => {
+            if(foundConnector !== undefined) {return foundConnector};
+            const tmpProximityIndicator = this.getProximityIndicator(x, y);
+            return Object.entries(this.subgraph).reduce((foundConnector, [itemId, graphItem]) => {
+                if(foundConnector !== undefined || parseInt(itemId) === parseInt(this.dragAction.itemId)) {return foundConnector};
+                return Object.values(graphItem.connectors).find(({x:thatX, y:thatY, accepts:thatAccepts, provides:thatProvides}) => {
+                    return tmpProximityIndicator.containsPoint(thatX, thatY) &&
+                    (setIntersection(accepts, thatProvides).length !== 0 || setIntersection(thatAccepts, provides).length !== 0);
+                })
+            }, undefined)
+        }, undefined) || null;
+    }
+
+    setFocus() {
+        if(this.dragAction === null) {
+            if(this.focus !== null) {
+                this.subgraph[this.focus] === undefined || this.subgraph[this.focus].unfocus();
+                this.focus = null;
+            }
+        } else {
+            this.subgraph[this.dragAction.itemId].focus();
+            this.focus = this.dragAction.itemId;
+        }
+    }
+
+    draw() {
         const { ctx } = this.getCanvas();
-        this.draw(ctx);
+        ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+        new Rect(0, 0, this.menuWidth, this.menuHeight, this.menuColor).draw(ctx);
+        new Rect(this.menuHeight, 0, this.editorWidth, this.editorHeight, this.editorColor).draw(ctx);
+        this.menuItems.forEach((menuItem) => menuItem.shape.shouldDrawConnectors());
+        this.menuItems.forEach((menuItem) => menuItem.shape.draw(ctx));
+        Object.entries(this.subgraph).forEach(([itemId, graphItem]) => graphItem.shouldDrawConnectors());
+        sortGraph(this.subgraph).forEach(([itemId, graphItem]) => graphItem.draw(ctx));
+        if(this.proximateConnector !== null) {
+            this.getProximityIndicator(this.proximateConnector.x, this.proximateConnector.y).draw(ctx);
+        }
     }
 
     initializeListeners() {
@@ -128,78 +158,41 @@ class SubGraphEditor extends React.Component {
 
     componentDidMount() {
         this.initializeListeners();
-        const { canvas, ctx } = this.getCanvas();
-        this.initializeCanvasConstants(canvas);
+        this.initializeCanvasConstants();
         this.createMenuItems();
-        this.draw(ctx);
-    }
-
-    sortGraph(graph) {
-        let graphPairs = Object.entries(graph);
-        graphPairs.sort(([itemId1, graphItem1], [itemId2, graphItem2]) => {
-            return graphItem1.lastUpdated - graphItem2.lastUpdated;
-        });
-        return graphPairs;
+        this.draw();
     }
 
     getCanvasPosn(e) {
         return [e.clientX - this.canvasLeft, e.clientY - this.canvasTop];
     }
 
-    // @TODO: clean up
     onMouseDown(e) {
         const [mouseX, mouseY] = this.getCanvasPosn(e);
-        const clickedMenuItem = this.menuItems.find(
-            (menuItem) => menuItem.shape.containsPoint(mouseX, mouseY));
-        let newGraphItem, itemId, firstDrag;
-        if(clickedMenuItem !== undefined) {
-            newGraphItem = clickedMenuItem.createGraphItem();
-            itemId = this.addToSubgraph(newGraphItem);
-            firstDrag = true;
-        } else {
-            const sortedClickedGraphItems = this.sortGraph(this.subgraph).filter(([itemId, graphItem]) => {
-                return graphItem.containsPoint(mouseX, mouseY);
-            });
-            if(sortedClickedGraphItems.length === 0) {return;}
-            [itemId, newGraphItem] = sortedClickedGraphItems[sortedClickedGraphItems.length - 1];
-            firstDrag = false;
-        }
-        newGraphItem.updateTime();
-        this.draggedItem = {
-            itemId, firstDrag,
-            xOffset: newGraphItem.getXOffset(mouseX),
-            yOffset: newGraphItem.getYOffset(mouseY),
-        };
-        this.redraw();
+        this.dragAction = DragAction.onMouseDown(this.menuItems, this.subgraph, mouseX, mouseY);
+        this.proximateConnector = this.getProximateConnector();
+        this.setFocus();
+        this.draw();
     }
 
     onMouseUp(e) {
-        if(this.draggedItem === null) {return;}
-        const { itemId, firstDrag, xOffset, yOffset } = this.draggedItem;
-        this.draggedItem = null;
+        if(this.dragAction === null) {return;}
         const [mouseX, mouseY] = this.getCanvasPosn(e);
-        if(firstDrag) {
-            if(mouseY < this.menuHeight) {
-                delete this.subgraph[itemId];
-            } else{
-                const bounds = {minY:this.menuHeight};
-                this.subgraph[itemId].setLocation(mouseX - xOffset, mouseY - yOffset, bounds);
-            };
-        }
-        this.redraw();
+        this.dragAction.onMouseUp(this.subgraph, mouseX, mouseY, this.bounds);
+        this.dragAction = null;
+        this.proximateConnector = null;
+        this.setFocus();
+        this.draw();
     }
 
     onMouseMove(e) {
-        if(this.draggedItem === null) {return;}
         const [mouseX, mouseY] = this.getCanvasPosn(e);
-        const { itemId, firstDrag, xOffset, yOffset } = this.draggedItem;
-        const draggedGraphItem = this.subgraph[itemId];
-        const minY = (firstDrag ? 0 : this.menuHeight)+2;
-        const bounds = {minX:0+2, minY, maxX: this.canvasWidth-2, maxY: this.canvasHeight-2};
-        draggedGraphItem.setLocation(mouseX - xOffset, mouseY - yOffset, bounds);
-        this.draggedItem.xOffset = draggedGraphItem.getXOffset(mouseX);
-        this.draggedItem.yOffset = draggedGraphItem.getYOffset(mouseY);
-        this.redraw();
+        if(this.dragAction !== null) {
+            this.dragAction.onMouseMove(this.subgraph, mouseX, mouseY, this.bounds);
+            this.proximateConnector = this.getProximateConnector();
+        }
+        this.setFocus();
+        this.draw();
     }
 
     render() {

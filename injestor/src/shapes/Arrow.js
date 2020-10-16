@@ -1,5 +1,5 @@
 import { createLine, lineContainsPoint, getPosnWithBounds } from "../auxillary.js";
-import Shape from "./Shape.js";
+import { Shape, TO, FROM } from "./Shape.js";
 
 class Arrow extends Shape {
     constructor(width, startX, startY, endX, endY, color, borderColor) {
@@ -11,8 +11,10 @@ class Arrow extends Shape {
         this.endY = endY;
         this.color = color;
         this.borderColor = borderColor;
-        this.tailWidth = this.width/8;
+        this.tailWidth = this.width/6;
         this.headlength = 20;
+        this.translateStartBounds = this.translateStartBounds.bind(this)
+        this.translateEndBounds = this.translateEndBounds.bind(this)
     }
 
     get dx() {
@@ -72,10 +74,23 @@ class Arrow extends Shape {
     }
 
     get connectors() {
-        return [
-            [this.startX, this.startY],
-            [this.endX, this.endY]
-        ];
+        return {
+            start: {x:this.startX, y:this.startY, accepts: [], provides: [FROM]},
+            end: {x:this.endX, y:this.endY, accepts: [], provides: [TO]}
+        };
+    }
+
+    get resizers() {
+        return {
+            start: {x:this.startX, y:this.startY},
+            end: {x:this.endX, y:this.endY}
+        };
+    }
+
+    getClickedResizer(mouseX, mouseY) {
+        return Object.entries(this.resizers).find(([id, {x,y}]) => {
+            return super.createConnector(x, y).containsPoint(mouseX, mouseY);
+        });
     }
 
     draw(ctx) {
@@ -89,6 +104,13 @@ class Arrow extends Shape {
             tr: { x:tailTopRightX, y:tailTopRightY },
             tl: { x:tailTopLeftX, y:tailTopLeftY }
         } = this.bodyPoints;
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = this.borderColor;
+        if(this.shouldShadow) {
+            ctx.shadowColor = 'black';
+            ctx.shadowBlur = 5;
+        }
+        ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.moveTo(tailBottomRightX, tailBottomRightY);
         ctx.lineTo(tailBottomLeftX, tailBottomLeftY);
@@ -98,11 +120,10 @@ class Arrow extends Shape {
         ctx.lineTo(rightWingX, rightWingY);
         ctx.lineTo(tailTopRightX, tailTopRightY);
         ctx.closePath();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = this.borderColor;
         ctx.stroke();
-        ctx.fillStyle = this.color;
         ctx.fill();
+        ctx.shadowBlur = 0;
+
         super.draw(ctx);
     }
 
@@ -114,9 +135,9 @@ class Arrow extends Shape {
         const bt = createLine(rightWingX, rightWingY, leftWingX, leftWingY);
         const rt = createLine(this.endX, this.endY, rightWingX, rightWingY);
         const lt = createLine(this.endX, this.endY, leftWingX, leftWingY);
-        return lineContainsPoint(bt, this.startX, this.startY, leftWingX, false, pX, pY) &&
-            lineContainsPoint(rt, this.startX, this.startY, this.endX, true, pX, pY) &&
-            lineContainsPoint(lt, this.startX, this.startY, this.endX, true, pX, pY);
+        return lineContainsPoint(bt, this.endX, this.endY, leftWingX, pX, pY) &&
+            lineContainsPoint(rt, this.startX, this.startY, this.endX, pX, pY) &&
+            lineContainsPoint(lt, this.startX, this.startY, this.endX, pX, pY);
     }
 
     tailContainsPoint(pX, pY) {
@@ -134,10 +155,10 @@ class Arrow extends Shape {
             tailTopLeftX, tailTopLeftY);
         const tlBl = createLine(tailTopLeftX, tailTopLeftY,
             tailBottomLeftX, tailBottomLeftY);
-        return lineContainsPoint(blBr, this.endX, this.endY, tailBottomLeftX, true, pX, pY) &&
-            lineContainsPoint(brTr, this.endX, this.endY, tailBottomRightX, true, pX, pY) &&
-            lineContainsPoint(trTl, this.endX, this.endY, tailTopRightX, false, pX, pY) &&
-            lineContainsPoint(tlBl, this.endX, this.endY, tailTopLeftX, true, pX, pY);
+        return lineContainsPoint(blBr, this.endX, this.endY, tailBottomLeftX, pX, pY) &&
+            lineContainsPoint(brTr, this.endX, this.endY, tailBottomRightX, pX, pY) &&
+            lineContainsPoint(trTl, this.startX, this.startY, tailTopRightX, pX, pY) &&
+            lineContainsPoint(tlBl, this.endX, this.endY, tailTopLeftX, pX, pY);
     }
 
     containsPoint(pX, pY) {
@@ -152,11 +173,19 @@ class Arrow extends Shape {
         return pY - this.startY;
     }
 
-    translateArrow(xChange, yChange) {
+    translateStart(xChange, yChange) {
         this.startX += xChange;
         this.startY += yChange;
+    }
+
+    translateEnd(xChange, yChange) {
         this.endX += xChange;
         this.endY += yChange;
+    }
+
+    translateArrow(xChange, yChange) {
+        this.translateStart(xChange, yChange);
+        this.translateEnd(xChange, yChange);
     }
 
     get points() {
@@ -172,6 +201,20 @@ class Arrow extends Shape {
         return { left, right, top, bottom };
     }
 
+    translateStartBounds(x, y, bounds) {
+        const { minX, maxX, minY, maxY } = bounds;
+        const xChange = getPosnWithBounds(x, minX, maxX) - this.startX;
+        const yChange = getPosnWithBounds(y, minY, maxY) - this.startY;
+        this.translateStart(xChange, yChange);
+    }
+
+    translateEndBounds(x, y, bounds) {
+        const { minX, maxX, minY, maxY } = bounds;
+        const xChange = getPosnWithBounds(x - this.startX + this.endX, minX, maxX) - this.endX;
+        const yChange = getPosnWithBounds(y - this.startY + this.endY, minY, maxY) - this.endY;
+        this.translateEnd(xChange, yChange);
+    }
+
     setLocation(x, y, optional={}) {
         const { left, right, top, bottom } = this.boundingBox;
         const tmpArrow = new Arrow(this.width, this.startX, this.startY,
@@ -184,6 +227,11 @@ class Arrow extends Shape {
         const xChange = getPosnWithBounds(leftNew, minX, leftMaxX) - left;
         const yChange = getPosnWithBounds(topNew, minY, topMaxY) - top;
         this.translateArrow(xChange, yChange);
+    }
+
+    resize(resizerId, x, y, optional={}) {
+        const resizeFn = resizerId === "start" ? this.translateStartBounds : this.translateEndBounds;
+        resizeFn(x, y, optional);
     }
 }
 
