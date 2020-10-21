@@ -1,5 +1,5 @@
 import { getPosnWithBounds } from "../auxillary.js";
-import { Shape, TO, FROM } from "./Shape.js";
+import { Shape } from "./Shape.js";
 
 class Circle extends Shape {
     constructor(top, left, diameter, color, borderColor, dotted=false) {
@@ -25,10 +25,10 @@ class Circle extends Shape {
 
     get connectors() {
         return {
-            top: {x:this.left+this.radius, y:this.top, accepts: [TO, FROM], provides: []},
-            bottom: {x:this.left+this.radius, y:this.top+this.diameter, accepts: [TO, FROM], provides: []},
-            left: {x:this.left, y:this.top+this.radius, accepts: [TO, FROM], provides: []},
-            right: {x:this.left+this.diameter, y:this.top+this.radius, accepts: [TO, FROM], provides: []}
+            top: {x:this.left+this.radius, y:this.top},
+            bottom: {x:this.left+this.radius, y:this.top+this.diameter},
+            left: {x:this.left, y:this.top+this.radius},
+            right: {x:this.left+this.diameter, y:this.top+this.radius}
         };
     }
 

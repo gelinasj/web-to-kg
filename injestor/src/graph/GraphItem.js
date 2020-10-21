@@ -19,6 +19,7 @@ class GraphItem {
     }
 
     resize(resizerId, pX, pY, bounds) {
+        this.updateTime();
         this.shape.resize(resizerId, pX, pY, bounds);
     }
 
@@ -51,12 +52,55 @@ class GraphItem {
         return this.shape.connectors;
     }
 
+    get resizers() {
+        return this.shape.resizers;
+    }
+
     focus() {
         this.shape.focus();
     }
 
     unfocus() {
         this.shape.unfocus();
+    }
+
+    joinLiteral(that, thisConnector, thatConnector, mutate) {
+        return false;
+    }
+
+    joinConnection(that, thisConnector, thatConnector, mutate) {
+        return false;
+    }
+
+    joinEnity(that, thisConnector, thatConnector, mutate) {
+        return false;
+    }
+
+    joinLiteralAndConnection(literal, connection, literalConnector, connectionConnector, mutate) {
+        if(literal.connectedItem === null && connectionConnector === "end" && connection.to === null) {
+            if(mutate) {
+                connection.to = literal;
+                literal.connectedItem = connection;
+                literal.connector = literalConnector;
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    joinEnityAndConnection(entity, connection, entityConnector, connectionConnector, mutate) {
+        const connectionType = connectionConnector === "start" ? "from" : "to";
+        const direction = connectionConnector === "start" ? "outgoing" : "incoming";
+        if(connection[connectionType] === null) {
+            if(mutate) {
+                entity[direction].push([connection, entityConnector]);
+                connection[connectionType] = entity;
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 

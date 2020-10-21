@@ -6,7 +6,7 @@ import Entity from "./graph/Entity.js";
 import Literal from "./graph/Literal.js";
 import Connection from "./graph/Connection.js";
 import DragAction from "./drag-actions/DragAction.js";
-import { sortGraph, setIntersection } from "./auxillary.js";
+import { sortGraph } from "./auxillary.js";
 
 class SubGraphEditor extends React.Component {
 
@@ -104,22 +104,33 @@ class SubGraphEditor extends React.Component {
     }
 
     getProximityIndicator(x, y) {
-        const radius = 20
+        const radius = 30;
         return new Circle(y - radius, x - radius, radius*2, undefined, "black", true);
     }
 
     getProximateConnector() {
         if(this.dragAction === null) {return null};
         const draggedGraphItem = this.subgraph[this.dragAction.itemId];
-        return Object.values(draggedGraphItem.connectors).reduce((foundConnector, {x, y, accepts, provides}) => {
+        return Object.entries(draggedGraphItem.connectors).reduce((foundConnector, [connectorId, {x, y, accepts, provides}]) => {
             if(foundConnector !== undefined) {return foundConnector};
             const tmpProximityIndicator = this.getProximityIndicator(x, y);
             return Object.entries(this.subgraph).reduce((foundConnector, [itemId, graphItem]) => {
                 if(foundConnector !== undefined || parseInt(itemId) === parseInt(this.dragAction.itemId)) {return foundConnector};
-                return Object.values(graphItem.connectors).find(({x:thatX, y:thatY, accepts:thatAccepts, provides:thatProvides}) => {
-                    return tmpProximityIndicator.containsPoint(thatX, thatY) &&
-                    (setIntersection(accepts, thatProvides).length !== 0 || setIntersection(thatAccepts, provides).length !== 0);
-                })
+                return Object.entries(graphItem.connectors).reduce((foundConnector, [thatconnectorId, {x:thatX, y:thatY, accepts:thatAccepts, provides:thatProvides}]) => {
+                    if(foundConnector !== undefined) {return foundConnector};
+                    const isFound = tmpProximityIndicator.containsPoint(thatX, thatY) &&
+                    draggedGraphItem.join(graphItem, connectorId, thatconnectorId, false);
+                    if(isFound) {
+                        return {
+                            draggedConnector: connectorId,
+                            draggedItem: parseInt(this.dragAction.itemId),
+                            nondraggedConnector: thatconnectorId,
+                            nondraggedItem: parseInt(itemId)
+                        };
+                    } else {
+                        return undefined;
+                    }
+                }, undefined);
             }, undefined)
         }, undefined) || null;
     }
@@ -141,12 +152,13 @@ class SubGraphEditor extends React.Component {
         ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         new Rect(0, 0, this.menuWidth, this.menuHeight, this.menuColor).draw(ctx);
         new Rect(this.menuHeight, 0, this.editorWidth, this.editorHeight, this.editorColor).draw(ctx);
-        this.menuItems.forEach((menuItem) => menuItem.shape.shouldDrawConnectors());
         this.menuItems.forEach((menuItem) => menuItem.shape.draw(ctx));
         Object.entries(this.subgraph).forEach(([itemId, graphItem]) => graphItem.shouldDrawConnectors());
         sortGraph(this.subgraph).forEach(([itemId, graphItem]) => graphItem.draw(ctx));
         if(this.proximateConnector !== null) {
-            this.getProximityIndicator(this.proximateConnector.x, this.proximateConnector.y).draw(ctx);
+            const {nondraggedItem, nondraggedConnector} = this.proximateConnector;
+            const info = this.subgraph[nondraggedItem].connectors[nondraggedConnector];
+            this.getProximityIndicator(info.x, info.y).draw(ctx);
         }
     }
 
@@ -178,7 +190,7 @@ class SubGraphEditor extends React.Component {
     onMouseUp(e) {
         if(this.dragAction === null) {return;}
         const [mouseX, mouseY] = this.getCanvasPosn(e);
-        this.dragAction.onMouseUp(this.subgraph, mouseX, mouseY, this.bounds);
+        this.dragAction.onMouseUp(this.subgraph, mouseX, mouseY, this.getProximateConnector(), this.bounds);
         this.dragAction = null;
         this.proximateConnector = null;
         this.setFocus();

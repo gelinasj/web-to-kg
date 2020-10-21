@@ -1,5 +1,5 @@
 import { createLine, lineContainsPoint, getPosnWithBounds } from "../auxillary.js";
-import { Shape, TO, FROM } from "./Shape.js";
+import { Shape } from "./Shape.js";
 
 class Arrow extends Shape {
     constructor(width, startX, startY, endX, endY, color, borderColor) {
@@ -75,8 +75,8 @@ class Arrow extends Shape {
 
     get connectors() {
         return {
-            start: {x:this.startX, y:this.startY, accepts: [], provides: [FROM]},
-            end: {x:this.endX, y:this.endY, accepts: [], provides: [TO]}
+            start: {x:this.startX, y:this.startY},
+            end: {x:this.endX, y:this.endY}
         };
     }
 
@@ -210,7 +210,7 @@ class Arrow extends Shape {
 
     translateEndBounds(x, y, bounds) {
         const { minX, maxX, minY, maxY } = bounds;
-        const xChange = getPosnWithBounds(x - this.startX + this.endX, minX, maxX) - this.endX;
+        const xChange = getPosnWithBounds(x - this.startX + this.endX, minX, maxX, true) - this.endX;
         const yChange = getPosnWithBounds(y - this.startY + this.endY, minY, maxY) - this.endY;
         this.translateEnd(xChange, yChange);
     }

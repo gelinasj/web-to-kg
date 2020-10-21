@@ -11,3 +11,9 @@
 9. Add re-adjust on drop and connections
 10. Add dependent drag with connections
 11. Add connection indicator icons
+
+
+## Edge Case's for the Future
+
+* A property should not be able to have multiple to or from objects
+* An entity should not be able to have multiple connections

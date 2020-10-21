@@ -1,5 +1,5 @@
 import { getPosnWithBounds } from "../auxillary.js";
-import { Shape, TO } from "./Shape.js";
+import { Shape } from "./Shape.js";
 
 class Rect extends Shape {
     constructor(top, left, width, height, color, borderColor) {
@@ -16,10 +16,10 @@ class Rect extends Shape {
         const halfWidth = this.width/2;
         const halfHeight = this.height/2;
         return {
-            top: {x:this.left+halfWidth, y:this.top, accepts: [TO], provides: []},
-            bottom: {x:this.left+halfWidth, y:this.top+this.height, accepts: [TO], provides: []},
-            left: {x:this.left, y:this.top+halfHeight, accepts: [TO], provides: []},
-            right: {x:this.left+this.width, y:this.top+halfHeight, accepts: [TO], provides: []}
+            top: {x:this.left+halfWidth, y:this.top},
+            bottom: {x:this.left+halfWidth, y:this.top+this.height},
+            left: {x:this.left, y:this.top+halfHeight},
+            right: {x:this.left+this.width, y:this.top+halfHeight}
         };
     }
 
