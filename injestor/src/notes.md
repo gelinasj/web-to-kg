@@ -8,8 +8,8 @@
 6. ~~Add rotating/extending arrows~~
 7. ~~Add proximity indicators on drag (dotted circle)~~
 8. ~~Add indicator privileges~~
-9. Add re-adjust on drop and connections
-10. Add dependent drag with connections
+9. ~~Add re-adjust on drop and connections~~
+10. ~~Add dependent drag with connections~~
 11. Add connection indicator icons
 
 

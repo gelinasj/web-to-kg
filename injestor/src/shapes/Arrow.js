@@ -76,7 +76,8 @@ class Arrow extends Shape {
     get connectors() {
         return {
             start: {x:this.startX, y:this.startY},
-            end: {x:this.endX, y:this.endY}
+            end: {x:this.endX, y:this.endY},
+            center: {x:(this.endX-this.startX)/2 + this.startX, y:(this.endY-this.startY)/2 + this.startY}
         };
     }
 

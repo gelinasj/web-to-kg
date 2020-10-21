@@ -68,10 +68,6 @@ class GraphItem {
         return false;
     }
 
-    joinConnection(that, thisConnector, thatConnector, mutate) {
-        return false;
-    }
-
     joinEnity(that, thisConnector, thatConnector, mutate) {
         return false;
     }
@@ -102,6 +98,19 @@ class GraphItem {
             return false;
         }
     }
+
+    joinConnectionAndConnection(centerConnection, qualifier, mutate) {
+        if(qualifier.from === null) {
+            if(mutate) {
+                qualifier.from = centerConnection;
+                centerConnection.qualifiers.push(qualifier);
+            }
+            return true;
+        } else {
+            return false
+        }
+    }
+
 }
 
 export default GraphItem;
