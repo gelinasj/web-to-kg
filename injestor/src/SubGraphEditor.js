@@ -15,6 +15,7 @@ class SubGraphEditor extends React.Component {
         this.subgraph = {};
         this.menuItems = [];
         this.dragAction = null;
+        this.state = {detailFocus: null};
 
         this.onMouseDown = this.onMouseDown.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
@@ -33,7 +34,7 @@ class SubGraphEditor extends React.Component {
         this.menuItemSpacing = null;
         this.bounds = null;
         this.proximateConnector = null;
-        this.focus = null;
+        this.dragFocus = null;
     }
 
     getCanvas() {
@@ -56,7 +57,7 @@ class SubGraphEditor extends React.Component {
         this.editorColor = "#e4eeb2";
         this.editorWidth = this.canvasWidth;
         this.editorHeight = this.canvasHeight - this.menuHeight;
-        this.bounds = {minX:0+2, minY: this.menuHeight+2, maxX: this.canvasWidth-2, maxY: this.canvasHeight-2};
+        this.bounds = {minX:0+3, minY: this.menuHeight+3, maxX: this.canvasWidth-3, maxY: this.canvasHeight-3};
     }
 
     createMenuItems() {
@@ -137,13 +138,13 @@ class SubGraphEditor extends React.Component {
 
     setFocus() {
         if(this.dragAction === null) {
-            if(this.focus !== null) {
-                this.subgraph[this.focus] === undefined || this.subgraph[this.focus].unfocus();
-                this.focus = null;
+            if(this.dragFocus !== null) {
+                this.subgraph[this.dragFocus] === undefined ||  this.subgraph[this.dragFocus].unfocus();
+                this.dragFocus = null;
             }
         } else {
             this.subgraph[this.dragAction.itemId].focus();
-            this.focus = this.dragAction.itemId;
+            this.dragFocus = this.dragAction.itemId;
         }
     }
 
@@ -179,10 +180,25 @@ class SubGraphEditor extends React.Component {
         return [e.clientX - this.canvasLeft, e.clientY - this.canvasTop];
     }
 
+    setDetailFocus(mouseX, mouseY) {
+        const clickedGraphItem = sortGraph(this.subgraph, false).find(([itemId, graphItem]) => {
+            return graphItem.containsPoint(mouseX, mouseY);
+        });
+        if (clickedGraphItem !== undefined) {
+            const [itemId, item] = clickedGraphItem;
+            item.focus(true);
+            this.setState({detailFocus: itemId});
+        }
+    }
+
     onMouseDown(e) {
+        const {detailFocus} = this.state;
         const [mouseX, mouseY] = this.getCanvasPosn(e);
         this.dragAction = DragAction.onMouseDown(this.menuItems, this.subgraph, mouseX, mouseY);
         this.proximateConnector = this.getProximateConnector();
+        detailFocus === null || this.subgraph[detailFocus].unfocus(true);
+        this.setState({detailFocus: null});
+        this.setDetailFocus(mouseX, mouseY);
         this.setFocus();
         this.draw();
     }
@@ -208,13 +224,30 @@ class SubGraphEditor extends React.Component {
     }
 
     render() {
+        const CANVAS_WIDTH = 700;
+        const CANVAS_HEIGHT = 700;
+        const {detailFocus} = this.state;
+        const detailFocusStyle = {
+            margin:`${CANVAS_HEIGHT/100*25}px 10px 10px 10px`,
+            float:"left", "backgroundColor":"NavajoWhite",
+            width:CANVAS_WIDTH/2.3,
+            height:CANVAS_HEIGHT/100*70,
+            "border-radius": "8px"
+        };
         return (
             <div id="SubGraphEditor" style={{padding:"10px"}}>
-                <canvas
-                id="SubGraphEditorCanvas"
-                width={700}
-                height={700}
+                <canvas style={{float:"left", "border-radius": "8px"}}
+                    id="SubGraphEditorCanvas"
+                    width={CANVAS_WIDTH}
+                    height={CANVAS_HEIGHT}
                 />
+                {detailFocus === null ||
+                    (<div
+                        id="SubGraphEditorDetailPane"
+                        style={detailFocusStyle}>
+                        <p>{detailFocus}</p>
+                    </div>)
+                }
             </div>
         );
     }

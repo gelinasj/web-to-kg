@@ -26,17 +26,14 @@ class Rect extends Shape {
     draw(ctx) {
         ctx.lineWidth = 3;
         ctx.strokeStyle = this.borderColor;
-        if(this.shouldShadow) {
-            ctx.shadowColor = 'black';
-            ctx.shadowBlur = 5;
-        }
+        super.handleShadow(ctx);
         ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.rect(this.left, this.top, this.width, this.height);
         ctx.closePath();
         ctx.stroke();
         ctx.fill();
-        ctx.shadowBlur = 0;
+
         super.draw(ctx);
     }
 

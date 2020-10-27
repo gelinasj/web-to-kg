@@ -47,10 +47,7 @@ class Circle extends Shape {
         } else {
             ctx.lineWidth = 3;
             ctx.strokeStyle = this.borderColor;
-            if(this.shouldShadow) {
-                ctx.shadowColor = 'black';
-                ctx.shadowBlur = 5;
-            }
+            super.handleShadow(ctx);
             ctx.fillStyle = this.color;
             ctx.beginPath();
             ctx.arc(x, y, this.radius, 0, 2*Math.PI);
@@ -58,7 +55,7 @@ class Circle extends Shape {
             ctx.stroke();
             ctx.fill();
         }
-        ctx.shadowBlur = 0;
+
         super.draw(ctx);
     }
 

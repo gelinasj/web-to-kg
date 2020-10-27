@@ -26,7 +26,7 @@ class Translate extends DragAction {
     onMouseMove(subgraph, mouseX, mouseY, bounds) {
         const draggedGraphItem = subgraph[this.itemId];
         if(this.firstDrag) {
-            bounds = {...bounds, minY:0+2};
+            bounds = {...bounds, minY:0+3};
         }
         draggedGraphItem.setLocation(mouseX - this.xOffset, mouseY - this.yOffset, bounds);
         this.xOffset = draggedGraphItem.getXOffset(mouseX);

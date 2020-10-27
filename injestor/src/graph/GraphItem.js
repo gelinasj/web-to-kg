@@ -19,8 +19,8 @@ class GraphItem {
     }
 
     resize(resizerId, pX, pY, bounds) {
-        this.updateTime();
         this.shape.resize(resizerId, pX, pY, bounds);
+        this.updateTime();
     }
 
     getXOffset(pX) {
@@ -32,8 +32,8 @@ class GraphItem {
     }
 
     setLocation(canvasX, canvasY, pX, pY, optional={}) {
-        this.updateTime();
         this.shape.setLocation(canvasX, canvasY, pX, pY, optional);
+        this.updateTime();
     }
 
     containsPoint(pX, pY) {
@@ -56,12 +56,12 @@ class GraphItem {
         return this.shape.resizers;
     }
 
-    focus() {
-        this.shape.focus();
+    focus(backgroundFocus=false) {
+        this.shape.focus(backgroundFocus);
     }
 
-    unfocus() {
-        this.shape.unfocus();
+    unfocus(backgroundFocus=false) {
+        this.shape.unfocus(backgroundFocus);
     }
 
     joinLiteral(that, thisConnector, thatConnector, mutate) {
@@ -86,10 +86,10 @@ class GraphItem {
     }
 
     joinEnityAndConnection(entity, connection, entityConnector, connectionConnector, mutate) {
-        const connectionType = connectionConnector === "start" ? "from" : "to";
-        const direction = connectionConnector === "start" ? "outgoing" : "incoming";
-        if(connection[connectionType] === null) {
+        const connectionType = connectionConnector === "start" ? "from" : connectionConnector === "end" ? "to" : undefined;
+        if(connectionType !== undefined && connection[connectionType] === null) {
             if(mutate) {
+                const direction = connectionConnector === "start" ? "outgoing" : "incoming";
                 entity[direction].push([connection, entityConnector]);
                 connection[connectionType] = entity;
             }
