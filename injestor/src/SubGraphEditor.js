@@ -10,8 +10,8 @@ import { sortGraph } from "./auxillary.js";
 
 class SubGraphEditor extends React.Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.subgraph = {};
         this.menuItems = [];
         this.dragAction = null;
@@ -181,13 +181,9 @@ class SubGraphEditor extends React.Component {
     }
 
     setDetailFocus(mouseX, mouseY) {
-        const clickedGraphItem = sortGraph(this.subgraph, false).find(([itemId, graphItem]) => {
-            return graphItem.containsPoint(mouseX, mouseY);
-        });
-        if (clickedGraphItem !== undefined) {
-            const [itemId, item] = clickedGraphItem;
-            item.focus(true);
-            this.setState({detailFocus: itemId});
+        if (this.dragAction !== null) {
+            this.subgraph[this.dragAction.itemId].focus(true);
+            this.setState({detailFocus: this.dragAction.itemId});
         }
     }
 
@@ -196,9 +192,11 @@ class SubGraphEditor extends React.Component {
         const [mouseX, mouseY] = this.getCanvasPosn(e);
         this.dragAction = DragAction.onMouseDown(this.menuItems, this.subgraph, mouseX, mouseY);
         this.proximateConnector = this.getProximateConnector();
-        detailFocus === null || this.subgraph[detailFocus].unfocus(true);
-        this.setState({detailFocus: null});
-        this.setDetailFocus(mouseX, mouseY);
+        if(mouseX < this.canvasWidth && mouseY < this.canvasHeight && mouseX > 0 && mouseY > 0) {
+            detailFocus === null || detailFocus === undefined || this.subgraph[detailFocus].unfocus(true);
+            this.setState({detailFocus: null});
+            this.setDetailFocus(mouseX, mouseY);
+        }
         this.setFocus();
         this.draw();
     }
@@ -232,19 +230,18 @@ class SubGraphEditor extends React.Component {
             float:"left", "backgroundColor":"NavajoWhite",
             width:CANVAS_WIDTH/2.3,
             height:CANVAS_HEIGHT/100*70,
-            "border-radius": "8px"
+            "borderRadius": "8px",
+            "boxShadow": "5px 5px 5px grey"
         };
         return (
             <div id="SubGraphEditor" style={{padding:"10px"}}>
-                <canvas style={{float:"left", "border-radius": "8px"}}
+                <canvas style={{float:"left", "borderRadius": "8px"}}
                     id="SubGraphEditorCanvas"
                     width={CANVAS_WIDTH}
                     height={CANVAS_HEIGHT}
                 />
                 {detailFocus === null ||
-                    (<div
-                        id="SubGraphEditorDetailPane"
-                        style={detailFocusStyle}>
+                    (<div id="SubGraphEditorDetailPane" style={detailFocusStyle}>
                         <p>{detailFocus}</p>
                     </div>)
                 }
