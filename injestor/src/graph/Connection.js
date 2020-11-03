@@ -56,6 +56,25 @@ class Connection extends GraphItem {
             return false;
         }
     }
+
+    disjoin() {
+      this.to === null || this.to.disjoinThat(this);
+      this.from === null || this.from.disjoinThat(this);
+      this.qualifiers.forEach(function(qualifier) {
+        qualifier.disjoinThat(this)
+      }.bind(this));
+
+    }
+
+    disjoinThat(that) {
+      if(that === this.to) {
+        this.to = null; return;
+      }
+      if (that === this.from) {
+        this.from = null; return;
+      }
+      this.qualifiers.filter((qualifier) => that !== qualifier);
+    }
 }
 
 export default Connection;

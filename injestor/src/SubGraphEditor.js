@@ -20,6 +20,7 @@ class SubGraphEditor extends React.Component {
         this.onMouseDown = this.onMouseDown.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
         this.onMouseMove = this.onMouseMove.bind(this);
+        this.removeGraphItem = this.removeGraphItem.bind(this);
 
         this.menuWidth = null;
         this.menuHeight = null;
@@ -180,7 +181,7 @@ class SubGraphEditor extends React.Component {
         return [e.clientX - this.canvasLeft, e.clientY - this.canvasTop];
     }
 
-    setDetailFocus(mouseX, mouseY) {
+    setDetailFocus() {
         if (this.dragAction !== null) {
             this.subgraph[this.dragAction.itemId].focus(true);
             this.setState({detailFocus: this.dragAction.itemId});
@@ -195,7 +196,7 @@ class SubGraphEditor extends React.Component {
         if(mouseX < this.canvasWidth && mouseY < this.canvasHeight && mouseX > 0 && mouseY > 0) {
             detailFocus === null || detailFocus === undefined || this.subgraph[detailFocus].unfocus(true);
             this.setState({detailFocus: null});
-            this.setDetailFocus(mouseX, mouseY);
+            this.setDetailFocus();
         }
         this.setFocus();
         this.draw();
@@ -204,7 +205,7 @@ class SubGraphEditor extends React.Component {
     onMouseUp(e) {
         if(this.dragAction === null) {return;}
         const [mouseX, mouseY] = this.getCanvasPosn(e);
-        this.dragAction.onMouseUp(this.subgraph, mouseX, mouseY, this.getProximateConnector(), this.bounds);
+        this.dragAction.onMouseUp(this.subgraph, mouseX, mouseY, this.getProximateConnector(), this.bounds, this.removeGraphItem);
         this.dragAction = null;
         this.proximateConnector = null;
         this.setFocus();
@@ -219,6 +220,14 @@ class SubGraphEditor extends React.Component {
         }
         this.setFocus();
         this.draw();
+    }
+
+    removeGraphItem(itemId) {
+      if(this.subgraph[itemId] !== undefined) {
+        this.subgraph[itemId].disjoin();
+        delete this.subgraph[itemId];
+        this.setState({detailFocus: null}, () => this.draw());
+      }
     }
 
     render() {
@@ -242,7 +251,7 @@ class SubGraphEditor extends React.Component {
                 />
                 {detailFocus === null ||
                     (<div id="SubGraphEditorDetailPane" style={detailFocusStyle}>
-                        <p>{detailFocus}</p>
+                        <button onClick={(e) => this.removeGraphItem(detailFocus)}>Remove</button>
                     </div>)
                 }
             </div>

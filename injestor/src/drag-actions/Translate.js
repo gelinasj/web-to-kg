@@ -6,9 +6,9 @@ class Translate extends DragAction {
         this.firstDrag = firstDrag;
     }
 
-    onMouseUp(subgraph, mouseX, mouseY, proximateConnector, bounds) {
+    onMouseUp(subgraph, mouseX, mouseY, proximateConnector, bounds, onDelete) {
         if(this.firstDrag && mouseY < bounds.minY) {
-            delete subgraph[this.itemId];
+            onDelete(this.itemId);
         } else {
             const draggedItem = subgraph[this.itemId];
             if(proximateConnector !== null) {

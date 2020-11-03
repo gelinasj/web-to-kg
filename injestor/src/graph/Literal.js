@@ -25,6 +25,19 @@ class Literal extends GraphItem {
     joinConnection(connection, thisConnector, connectionConnector, mutate) {
         return super.joinLiteralAndConnection(this, connection, thisConnector, connectionConnector, mutate);
     }
+
+    disjoin() {
+      this.connectedItem === null || this.connectedItem.disjoinThat(this);
+      this.connectedItem = null;
+      this.connector = null;
+    }
+
+    disjoinThat(that) {
+      if(that === this.connectedItem) {
+        this.connectedItem = null;
+        this.connector = null;
+      }
+    }
 }
 
 export default Literal;

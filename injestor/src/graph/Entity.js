@@ -30,6 +30,22 @@ class Entity extends GraphItem {
     joinConnection(connection, thisConnector, connectionConnector, mutate) {
         return super.joinEnityAndConnection(this, connection, thisConnector, connectionConnector, mutate);
     }
+
+    disjoin() {
+      this.incoming.forEach(function([connection, connector]) {
+        connection.disjoinThat(this)
+      }.bind(this));
+      this.outgoing.forEach(function([connection, connector]) {
+        connection.disjoinThat(this)
+      }.bind(this));
+      this.incoming = [];
+      this.outgoing = [];
+    }
+
+    disjoinThat(that) {
+      this.incoming.filter(([connection, connector]) => that !== connection);
+      this.incoming.filter(([connection, connector]) => that !== connection);
+    }
 }
 
 export default Entity;
