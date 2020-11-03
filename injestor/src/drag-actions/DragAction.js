@@ -1,4 +1,4 @@
-import { generateAction } from "../auxillary.js";
+import { generateAction } from "../auxillary/auxillary.js";
 
 class DragAction {
     constructor(itemId, graphItem, mouseX, mouseY) {

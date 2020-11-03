@@ -1,4 +1,4 @@
-import { getPosnWithBounds } from "../auxillary.js";
+import { getPosnWithBounds } from "../auxillary/auxillary.js";
 import { Shape } from "./Shape.js";
 
 class Rect extends Shape {

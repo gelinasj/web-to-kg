@@ -1,5 +1,5 @@
-import Translate from "./drag-actions/Translate.js";
-import Resize from "./drag-actions/Resize.js";
+import Translate from "../drag-actions/Translate.js";
+import Resize from "../drag-actions/Resize.js";
 
 function createLine(x1, y1, x2, y2) {
     const m = (y2 - y1)/(x2 - x1);

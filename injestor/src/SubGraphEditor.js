@@ -6,7 +6,8 @@ import Entity from "./graph/Entity.js";
 import Literal from "./graph/Literal.js";
 import Connection from "./graph/Connection.js";
 import DragAction from "./drag-actions/DragAction.js";
-import { sortGraph } from "./auxillary.js";
+import GraphItemAutoComplete from "./GraphItemAutoComplete.js"
+import { sortGraph } from "./auxillary/auxillary.js";
 
 class SubGraphEditor extends React.Component {
 
@@ -252,6 +253,7 @@ class SubGraphEditor extends React.Component {
                 {detailFocus === null ||
                     (<div id="SubGraphEditorDetailPane" style={detailFocusStyle}>
                         <button onClick={(e) => this.removeGraphItem(detailFocus)}>Remove</button>
+                        <GraphItemAutoComplete searchType={this.subgraph[detailFocus].constructor.name} />
                     </div>)
                 }
             </div>

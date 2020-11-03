@@ -1,4 +1,4 @@
-import { createLine, lineContainsPoint, getPosnWithBounds } from "../auxillary.js";
+import { createLine, lineContainsPoint, getPosnWithBounds } from "../auxillary/auxillary.js";
 import { Shape } from "./Shape.js";
 
 class Arrow extends Shape {
