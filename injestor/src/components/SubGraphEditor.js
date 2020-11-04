@@ -1,13 +1,13 @@
 import React from "react";
-import Circle from "./shapes/Circle.js";
-import Rect from "./shapes/Rect.js";
-import Arrow from "./shapes/Arrow.js";
-import Entity from "./graph/Entity.js";
-import Literal from "./graph/Literal.js";
-import Connection from "./graph/Connection.js";
-import DragAction from "./drag-actions/DragAction.js";
-import GraphItemAutoComplete from "./GraphItemAutoComplete.js"
-import { sortGraph } from "./auxillary/auxillary.js";
+import Circle from "../shapes/Circle.js";
+import Rect from "../shapes/Rect.js";
+import Arrow from "../shapes/Arrow.js";
+import Entity from "../graph/Entity.js";
+import Literal from "../graph/Literal.js";
+import Connection from "../graph/Connection.js";
+import DragAction from "../drag-actions/DragAction.js";
+import GraphItemDetailPane from "./GraphItemDetailPane.js"
+import { sortGraph } from "../auxillary/auxillary.js";
 
 class SubGraphEditor extends React.Component {
 
@@ -231,18 +231,17 @@ class SubGraphEditor extends React.Component {
       }
     }
 
+    updateSubgraphWithKGInfo(id) {
+      return function(kgItem) {
+        this.subgraph[id].updateKGInfo(kgItem);
+        this.draw();
+      }.bind(this);
+    }
+
     render() {
         const CANVAS_WIDTH = 700;
         const CANVAS_HEIGHT = 700;
         const {detailFocus} = this.state;
-        const detailFocusStyle = {
-            margin:`${CANVAS_HEIGHT/100*25}px 10px 10px 10px`,
-            float:"left", "backgroundColor":"NavajoWhite",
-            width:CANVAS_WIDTH/2.3,
-            height:CANVAS_HEIGHT/100*70,
-            "borderRadius": "8px",
-            "boxShadow": "5px 5px 5px grey"
-        };
         return (
             <div id="SubGraphEditor" style={{padding:"10px"}}>
                 <canvas style={{float:"left", "borderRadius": "8px"}}
@@ -251,11 +250,13 @@ class SubGraphEditor extends React.Component {
                     height={CANVAS_HEIGHT}
                 />
                 {detailFocus === null ||
-                    (<div id="SubGraphEditorDetailPane" style={detailFocusStyle}>
-                        <button onClick={(e) => this.removeGraphItem(detailFocus)}>Remove</button>
-                        <GraphItemAutoComplete searchType={this.subgraph[detailFocus].constructor.name} />
-                    </div>)
-                }
+                  <GraphItemDetailPane
+                    onRemove={(e) => this.removeGraphItem(detailFocus)}
+                    onSelect={this.updateSubgraphWithKGInfo(detailFocus)}
+                    focusType={this.subgraph[detailFocus].constructor.name}
+                    canvasWidth={CANVAS_WIDTH}
+                    canvasHeight={CANVAS_HEIGHT}
+                    />}
             </div>
         );
     }

@@ -3,6 +3,7 @@ class GraphItem {
     constructor(shape) {
         this.shape = shape;
         this.lastUpdated = 0;
+        this.kgInfo = null;
         this.updateTime();
     }
 
@@ -10,12 +11,16 @@ class GraphItem {
         this.lastUpdated = new Date().getTime();
     }
 
+    updateKGInfo(kgInfo) {
+      this.kgInfo = kgInfo;
+    }
+
     shouldDrawConnectors() {
         this.shape.shouldDrawConnectors();
     }
 
     draw(ctx) {
-        this.shape.draw(ctx);
+        this.shape.draw(ctx, this.kgInfo === null ? undefined : `${this.kgInfo.label} (${this.kgInfo.id})`);
     }
 
     resize(resizerId, pX, pY, bounds) {

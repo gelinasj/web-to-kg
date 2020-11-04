@@ -13,10 +13,10 @@ function requestDataFunc(currentTypedString, handler){
 };
 
 function processReceivedDataFunc(data) {
-    return data.search.map((item) => [item.label, item.description]);
+    return data.search;
 }
 
-export function autocomplete(inp) {
+export function autocomplete(inp, onSelect) {
   /*the autocomplete function takes two arguments,
   the text field element and an array of possible autocompleted values:*/
   var currentFocus;
@@ -37,18 +37,18 @@ export function autocomplete(inp) {
         this.parentNode.appendChild(a);
         /*for each item in the array...*/
         for (i = 0; i < arr.length; i++) {
-          const [label, description] = arr[i];
+          const searchItem = arr[i];
+          const {id, label, description} = searchItem;
             /*create a DIV element for each matching element:*/
             b = document.createElement("DIV");
             /*make the matching letters bold:*/
-            b.innerHTML = "<strong>" + label + "</strong> - ";
+            b.innerHTML = `<strong>${label} (${id})</strong> - `;
             b.innerHTML += description;
             /*insert a input field that will hold the current array item's value:*/
             b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
             /*execute a function when someone clicks on the item value (DIV element):*/
             b.addEventListener("click", function(e) {
-                /*insert the value for the autocomplete text field:*/
-                inp.value = this.getElementsByTagName("input")[0].value;
+                onSelect(searchItem);
                 /*close the list of autocompleted values,
                 (or any other open lists of autocompleted values:*/
                 closeAllLists();

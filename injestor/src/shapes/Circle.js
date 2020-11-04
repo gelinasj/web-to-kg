@@ -32,7 +32,7 @@ class Circle extends Shape {
         };
     }
 
-    draw(ctx) {
+    draw(ctx, text) {
         const lineCount = 5;
         const { x, y } = this.center;
         if(this.dotted) {
@@ -54,8 +54,17 @@ class Circle extends Shape {
             ctx.closePath();
             ctx.stroke();
             ctx.fill();
+            ctx.shadowColor = 0;
+            ctx.shadowBlur = 0;
         }
-
+        if(text) {
+          text = text.split(" ");
+          ctx.font = "14px Arial";
+          ctx.fillStyle = "black";
+          console.log(ctx.measureText(text));
+          const delta = 14;
+          text.forEach((word, i) => ctx.fillText(word, this.left + (x - this.left)/2, this.top + (y - this.top) + i*delta));
+        }
         super.draw(ctx);
     }
 

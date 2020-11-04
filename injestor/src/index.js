@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { SubGraphEditor } from "./SubGraphEditor.js";
+import { SubGraphEditor } from "./components/SubGraphEditor.js";
 
 ReactDOM.render(
   <React.StrictMode>

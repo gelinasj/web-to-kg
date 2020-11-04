@@ -1,13 +1,14 @@
 import React from "react";
-import { autocomplete } from "./auxillary/autocomplete.js";
-import "./auxillary/style.css";
+import { autocomplete } from "../auxillary/autocomplete.js";
+import "../auxillary/style.css";
 
 export default class GraphItemAutoComplete extends React.Component {
 
   componentDidMount() {
+    const { onSelect } = this.props;
     const autocompleteInput = document.getElementById("graphItemAutocompleteInput");
     if(autocompleteInput !== null) {
-      autocomplete(autocompleteInput);
+      autocomplete(autocompleteInput, onSelect);
     }
   }
 
