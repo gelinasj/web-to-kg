@@ -1,5 +1,6 @@
 import React from "react";
-import GraphItemAutoComplete from "./GraphItemAutoComplete.js"
+import GraphItemAutoComplete from "./GraphItemAutoComplete.js";
+import LiteralInput from "./LiteralInput.js";
 
 export default class GraphItemDetailPane extends React.Component {
 
@@ -16,7 +17,9 @@ export default class GraphItemDetailPane extends React.Component {
     return (
       <div id="GraphItemDetailPane" style={graphItemDetailPaneStype}>
           <button onClick={onRemove}>Remove</button>
-          {focusType === "Literal" || <GraphItemAutoComplete searchType={focusType} onSelect={onSelect}/>}
+          {focusType === "Literal" ?
+            <LiteralInput onChange={onSelect}/> :
+            <GraphItemAutoComplete searchType={focusType} onSelect={onSelect}/>}
       </div>
     );
   }

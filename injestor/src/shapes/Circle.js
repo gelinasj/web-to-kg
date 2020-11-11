@@ -61,9 +61,8 @@ class Circle extends Shape {
           text = text.split(" ");
           ctx.font = "14px Arial";
           ctx.fillStyle = "black";
-          console.log(ctx.measureText(text));
           const delta = 14;
-          text.forEach((word, i) => ctx.fillText(word, this.left + (x - this.left)/2, this.top + (y - this.top) + i*delta));
+          text.forEach((word, i) => ctx.fillText(word, x, y + i*delta));
         }
         super.draw(ctx);
     }

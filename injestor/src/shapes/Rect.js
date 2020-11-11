@@ -23,7 +23,7 @@ class Rect extends Shape {
         };
     }
 
-    draw(ctx) {
+    draw(ctx, text) {
         ctx.lineWidth = 3;
         ctx.strokeStyle = this.borderColor;
         super.handleShadow(ctx);
@@ -33,6 +33,15 @@ class Rect extends Shape {
         ctx.closePath();
         ctx.stroke();
         ctx.fill();
+        ctx.shadowColor = 0;
+        ctx.shadowBlur = 0;
+        if(text) {
+          text = text.split(" ");
+          ctx.font = "14px Arial";
+          ctx.fillStyle = "black";
+          const delta = 14;
+          text.forEach((word, i) => ctx.fillText(word, this.left + this.width/2, this.top + this.height/2 + i*delta));
+        }
 
         super.draw(ctx);
     }

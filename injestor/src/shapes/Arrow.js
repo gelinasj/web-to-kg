@@ -94,7 +94,7 @@ class Arrow extends Shape {
         });
     }
 
-    draw(ctx) {
+    draw(ctx, text) {
         const {
             rightWing: { x:rightWingX , y:rightWingY },
             leftWing: { x:leftWingX , y:leftWingY },
@@ -120,6 +120,16 @@ class Arrow extends Shape {
         ctx.closePath();
         ctx.stroke();
         ctx.fill();
+        ctx.shadowColor = 0;
+        ctx.shadowBlur = 0;
+        if(text) {
+          text = text.split(" ");
+          ctx.font = "14px Arial";
+          ctx.fillStyle = "black";
+          const delta = 14;
+          const { x, y } = this.connectors.center;
+          text.forEach((word, i) => ctx.fillText(word, x, y + i*delta));
+        }
         super.draw(ctx);
     }
 
