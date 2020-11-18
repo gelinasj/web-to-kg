@@ -16,16 +16,29 @@ class Literal extends GraphItem {
           case INPUT_TYPES.string:
             text = `${this.kgInfo.value}`; break;
           case INPUT_TYPES.quantity:
-            text = "quantity TODO"; break;
+            text = `${this.kgInfo.value.data || ""} ${this.kgInfo.value.unit?.label || ""}`; break;
           case INPUT_TYPES.date:
             text = `${this.kgInfo.value}`; break;
           case INPUT_TYPES.url:
-            text = "url TODO"; break;
+            text = `${this.kgInfo.value}`; break;
           default:
             break;
         }
       }
       this.shape.draw(ctx, text);
+    }
+
+    updateKGInfo(kgInfo) {
+      if(kgInfo.literalInputType === INPUT_TYPES.quantity) {
+        if(this.kgInfo === null) {this.kgInfo = {};}
+        if(this.kgInfo?.literalInputType !== INPUT_TYPES.quantity) {
+          this.kgInfo.value = {};
+        }
+        this.kgInfo.value[kgInfo.value.type] = kgInfo.value.value;
+        this.kgInfo.literalInputType = kgInfo.literalInputType;
+      } else {
+        super.updateKGInfo(kgInfo);
+      }
     }
 
     setLocation(canvasX, canvasY, pX, pY, optional={}) {

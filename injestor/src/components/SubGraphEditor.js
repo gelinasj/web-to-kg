@@ -8,6 +8,8 @@ import Connection from "../graph/Connection.js";
 import DragAction from "../drag-actions/DragAction.js";
 import GraphItemDetailPane from "./GraphItemDetailPane.js"
 import { sortGraph } from "../auxillary/auxillary.js";
+import Table from 'react-bootstrap/Table';
+import "../auxillary/style.css";
 
 class SubGraphEditor extends React.Component {
 
@@ -16,7 +18,9 @@ class SubGraphEditor extends React.Component {
         this.subgraph = {};
         this.menuItems = [];
         this.dragAction = null;
-        this.state = {detailFocus: null};
+        this.state = {
+          detailFocus: null
+        };
 
         this.onMouseDown = this.onMouseDown.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
@@ -178,6 +182,12 @@ class SubGraphEditor extends React.Component {
         this.draw();
     }
 
+    componentWillUnmount() {
+      window.removeEventListener("mousedown", this.onMouseDown);
+      window.removeEventListener("mouseup", this.onMouseUp);
+      window.removeEventListener("mousemove", this.onMouseMove);
+    }
+
     getCanvasPosn(e) {
         return [e.clientX - this.canvasLeft, e.clientY - this.canvasTop];
     }
@@ -240,24 +250,32 @@ class SubGraphEditor extends React.Component {
 
     render() {
         const CANVAS_WIDTH = 700;
-        const CANVAS_HEIGHT = 700;
-        const {detailFocus} = this.state;
+        const CANVAS_HEIGHT = 600;
+        const { onSave, rowHeaders, rowData } = this.props;
+        const { detailFocus } = this.state;
         return (
-            <div id="SubGraphEditor" style={{padding:"10px"}}>
-                <canvas style={{float:"left", "borderRadius": "8px"}}
-                    id="SubGraphEditorCanvas"
-                    width={CANVAS_WIDTH}
-                    height={CANVAS_HEIGHT}
-                />
-                {detailFocus === null ||
-                  <GraphItemDetailPane
-                    onRemove={(e) => this.removeGraphItem(detailFocus)}
-                    onSelect={this.updateSubgraphWithKGInfo(detailFocus)}
-                    focusType={this.subgraph[detailFocus].constructor.name}
-                    canvasWidth={CANVAS_WIDTH}
-                    canvasHeight={CANVAS_HEIGHT}
-                    />}
-            </div>
+          <div id="SubGraphEditor" style={{padding:"10px"}}>
+            <canvas style={{float:"left", "borderRadius": "8px"}}
+                id="SubGraphEditorCanvas"
+                width={CANVAS_WIDTH}
+                height={CANVAS_HEIGHT}
+            />
+            <button onClick={onSave}>Save</button>
+            {detailFocus === null ||
+              <GraphItemDetailPane
+                onRemove={(e) => this.removeGraphItem(detailFocus)}
+                onSelect={this.updateSubgraphWithKGInfo(detailFocus)}
+                focusType={this.subgraph[detailFocus].constructor.name}
+                canvasWidth={CANVAS_WIDTH}
+                canvasHeight={CANVAS_HEIGHT}
+                />}
+            <Table className="styled-table">
+              <thead>
+                <tr>{rowHeaders.map((header, index) => <th key={index}>{header}</th>)}</tr>
+              </thead>
+              <tbody><tr>{rowData.map((cell, index) => <td key={index}>{cell}</td>)}</tr></tbody>
+            </Table>
+          </div>
         );
     }
 
