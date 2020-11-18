@@ -15,7 +15,7 @@ class SubGraphEditor extends React.Component {
 
     constructor(props) {
         super(props);
-        this.subgraph = {};
+        this.subgraph = props.initialSubgraph;
         this.menuItems = [];
         this.dragAction = null;
         this.state = {
@@ -260,7 +260,7 @@ class SubGraphEditor extends React.Component {
                 width={CANVAS_WIDTH}
                 height={CANVAS_HEIGHT}
             />
-            <button onClick={onSave}>Save</button>
+            <button onClick={(e) => onSave(this.subgraph)}>Save</button>
             {detailFocus === null ||
               <GraphItemDetailPane
                 onRemove={(e) => this.removeGraphItem(detailFocus)}

@@ -18,15 +18,22 @@ export default class Injestor extends React.Component {
     this.setState({subGraphEditRow: rowNumber});
   }
 
-  onSubGraphSave() {
-    this.setState({subGraphEditRow: undefined});
+  onSubGraphSave(subgraph) {
+    this.setState((state) => {
+      const subGraphEditsUpdated = [...state.subGraphEdits];
+      subGraphEditsUpdated[state.subGraphEditRow] = subgraph;
+      return {
+        subGraphEditRow: undefined,
+        subGraphEdits: subGraphEditsUpdated
+      };
+    });
   }
 
   render() {
     const { rawTableData } = this.props;
-    const { subGraphEditRow } = this.state;
+    const { subGraphEditRow, subGraphEdits } = this.state;
     return subGraphEditRow === undefined ?
       <DataTable data={rawTableData} selectedRow={this.onRowSelect}/> :
-      <SubGraphEditor rowHeaders={rawTableData[0]} rowData={rawTableData[subGraphEditRow]} onSave={this.onSubGraphSave}/>;
+      <SubGraphEditor initialSubgraph={subGraphEdits[subGraphEditRow]} rowHeaders={rawTableData[0]} rowData={rawTableData[subGraphEditRow]} onSave={this.onSubGraphSave}/>;
   }
 }
