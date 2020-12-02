@@ -4,7 +4,20 @@ class GraphItem {
         this.shape = shape;
         this.lastUpdated = 0;
         this.kgInfo = null;
+        this.bindings = {};
         this.updateTime();
+    }
+
+    getRawData() {
+      return {...this.kgInfo, bindings: this.bindings};
+    }
+
+    getTriples(alreadySeenTriples) {
+      return [];
+    }
+
+    bindColumn(index, name) {
+      this.bindings[index] = name
     }
 
     updateTime() {

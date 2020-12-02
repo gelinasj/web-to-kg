@@ -9,6 +9,10 @@ class Connection extends GraphItem {
         this.qualifiers = [];
     }
 
+    getTripleData() {
+      return [this.from.getRawData(), this.getRawData(), this.to.getRawData()];
+    }
+
     setLocation(canvasX, canvasY, pX, pY, optional={}) {
         this.updateTime();
         if(this.to === null && this.from === null) {

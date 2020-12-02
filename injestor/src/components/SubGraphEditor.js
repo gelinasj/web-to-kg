@@ -253,6 +253,22 @@ class SubGraphEditor extends React.Component {
         const CANVAS_HEIGHT = 600;
         const { onSave, rowHeaders, rowData } = this.props;
         const { detailFocus } = this.state;
+        let tableHeaders, tableData;
+        if(detailFocus === null) {
+          tableHeaders = rowHeaders.map((header, index) => <th key={index}>{header}</th>);
+          tableData = rowData.map((cell, index) => <td key={index}>{cell}</td>);
+        } else {
+          tableHeaders = rowHeaders.map((header, index) =>
+            <th
+              onClick={() => {
+                this.subgraph[detailFocus].bindColumn(index, rowHeaders[index]);
+                this.setState({});
+              }}
+              key={index}>{header}
+            </th>
+          );
+          tableData = rowData.map((cell, index) => <td key={index}>{cell}</td>);
+        }
         return (
           <div id="SubGraphEditor" style={{padding:"10px"}}>
             <canvas style={{float:"left", "borderRadius": "8px"}}
@@ -266,14 +282,15 @@ class SubGraphEditor extends React.Component {
                 onRemove={(e) => this.removeGraphItem(detailFocus)}
                 onSelect={this.updateSubgraphWithKGInfo(detailFocus)}
                 focusType={this.subgraph[detailFocus].constructor.name}
+                bindings={this.subgraph[detailFocus].bindings}
                 canvasWidth={CANVAS_WIDTH}
                 canvasHeight={CANVAS_HEIGHT}
                 />}
             <Table className="styled-table">
-              <thead>
-                <tr>{rowHeaders.map((header, index) => <th key={index}>{header}</th>)}</tr>
+              <thead id="loading">
+                <tr>{tableHeaders}</tr>
               </thead>
-              <tbody><tr>{rowData.map((cell, index) => <td key={index}>{cell}</td>)}</tr></tbody>
+              <tbody><tr>{tableData}</tr></tbody>
             </Table>
           </div>
         );
