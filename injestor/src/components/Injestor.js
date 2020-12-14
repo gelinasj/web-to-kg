@@ -19,12 +19,13 @@ export default class Injestor extends React.Component {
   }
 
   generalize() {
+    console.log(this.state.subGraphEdits);
     const subGraphEditsUpdated = [...this.state.subGraphEdits];
     let generalizePromise = Promise.resolve();
     subGraphEditsUpdated.forEach((subgraph, index) => {
       Object.values(subgraph).forEach((graphItem) => {
         generalizePromise = generalizePromise.then(() => {
-          return graphItem.generalize(this.props.rawTableData[index]);
+          return graphItem.generalize(this.props.rawTableData[index + 1]);
         });
       });
     });
@@ -83,7 +84,7 @@ export default class Injestor extends React.Component {
         <button onClick={this.onUpload}>Upload</button>
       </div> :
       <SubGraphEditor
-        initialSubgraph={subGraphEdits[subGraphEditRow]}
+        initialSubgraph={subGraphEdits[subGraphEditRow - 1]}
         rowHeaders={rawTableData[0]}
         rowData={rawTableData[subGraphEditRow]}
         onSave={this.onSubGraphSave}
