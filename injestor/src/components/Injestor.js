@@ -28,7 +28,9 @@ export default class Injestor extends React.Component {
         });
       });
     });
-    generalizePromise.then(() => this.setState({subGraphEdits: subGraphEditsUpdated}));
+    generalizePromise.then(() => {
+      this.setState({subGraphEdits: subGraphEditsUpdated});
+    });
   }
 
   onRowSelect(rowNumber, event) {
@@ -36,7 +38,7 @@ export default class Injestor extends React.Component {
       this.setState({subGraphEditRow: rowNumber});
     } else if (event === "onGeneralize") {
       this.setState((state) => {
-        const graphToGeneralize = state.subGraphEdits[rowNumber];
+        const graphToGeneralize = state.subGraphEdits[rowNumber - 1];
         return {
           subGraphEdits: state.subGraphEdits.map((subgraph, index) => {
             if(index + 1 === rowNumber) {
@@ -54,7 +56,6 @@ export default class Injestor extends React.Component {
     this.setState((state) => {
       const subGraphEditsUpdated = [...state.subGraphEdits];
       subGraphEditsUpdated[state.subGraphEditRow - 1] = subgraph;
-      console.log(subGraphEditsUpdated);
       return {
         subGraphEditRow: undefined,
         subGraphEdits: subGraphEditsUpdated
