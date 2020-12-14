@@ -13,12 +13,14 @@ export class DataTable extends React.Component {
   }
 
   getBody(rows) {
-    const { selectedRow } = this.props;
+    const { onRowSelect, rowEvents } = this.props;
     return rows.map((row, index) => {
       return (
         <tr key={index+1}>
           {this.getRow(row)}
-          <td><button onClick={() => selectedRow(index+1)}>Edit Sub-Graph</button></td>
+          {rowEvents.map(([name, id]) => {
+            return <td><button onClick={() => onRowSelect(index+1, id)}>{name}</button></td>;
+          })}
         </tr>
       );
     });

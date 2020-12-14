@@ -83,4 +83,28 @@ function setIntersection(set1, set2) {
     return set1.filter((item) => set2.includes(item));
 }
 
-export { createLine, lteq, gteq, lineContainsPoint, getPosnWithBounds, sortGraph, generateAction, setIntersection };
+function cloneSubgraph(graph) {
+  let alreadyCloned = [];
+  let clonedGraph = {};
+  Object.entries(graph).forEach(([key, graphItem]) => {
+    const clonedGraphItem = graphItem.clone(alreadyCloned);
+    clonedGraph[key] = clonedGraphItem;
+  });
+  return clonedGraph;
+}
+
+function getClone(item, alreadyCloned) {
+  const foundPair = alreadyCloned.find(([foundItem, clone]) => item === foundItem);
+  if(foundPair === undefined) {
+    return undefined;
+  } else {
+    const [foundItem, clone] = foundPair;
+    return clone;
+  }
+}
+
+export {
+  getClone, createLine, lteq, gteq, cloneSubgraph,
+  lineContainsPoint, getPosnWithBounds,
+  sortGraph, generateAction, setIntersection
+};

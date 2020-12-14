@@ -1,12 +1,29 @@
 import GraphItem from "./GraphItem.js";
 import Rect from "../shapes/Rect.js";
 import { INPUT_TYPES } from "../components/LiteralInput.js";
+import { getClone } from "../auxillary/auxillary.js";
 
 class Literal extends GraphItem {
-    constructor(top, left, width, height, color, borderColor) {
-        super(new Rect(top, left, width, height, color, borderColor));
+    constructor(top, left, width, height, color, borderColor, initializeEmpty=false) {
+        super(initializeEmpty ? undefined : new Rect(top, left, width, height, color, borderColor), initializeEmpty);
         this.connectedItem = null;
         this.connector = null;
+    }
+
+    generalize(tableData) {
+
+    }
+
+    clone(alreadyCloned) {
+      let clone = getClone(this, alreadyCloned);
+      if(clone === undefined) {
+        clone = new Literal(undefined, undefined, undefined, undefined, undefined, undefined, true);
+        super.clone(clone, alreadyCloned);
+        alreadyCloned.push([this, clone]);
+        clone.connector = this.connector;
+        clone.connectedItem = this.connectedItem && this.connectedItem.clone(alreadyCloned);
+      }
+      return clone;
     }
 
     draw(ctx) {

@@ -11,6 +11,13 @@ class Shape {
         this.backgroundFocus = false;
     }
 
+    clone(clone) {
+      clone.drawConnectors = this.drawConnectors;
+      clone.connectorRadius = this.connectorRadius;
+      clone.shouldShadow = this.shouldShadow;
+      clone.backgroundFocus = this.backgroundFocus;
+    }
+
     shouldDrawConnectors() {
         this.drawConnectors = true;
     }

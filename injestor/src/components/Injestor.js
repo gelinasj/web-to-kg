@@ -2,6 +2,7 @@ import React from "react";
 import { SubGraphEditor } from "./SubGraphEditor.js";
 import { DataTable } from "./DataTable.js";
 import Connection from "../graph/Connection.js";
+import { cloneSubgraph } from "../auxillary/auxillary.js";
 
 export default class Injestor extends React.Component {
 
@@ -14,10 +15,39 @@ export default class Injestor extends React.Component {
     this.onRowSelect = this.onRowSelect.bind(this);
     this.onSubGraphSave = this.onSubGraphSave.bind(this);
     this.onUpload = this.onUpload.bind(this);
+    this.generalize = this.generalize.bind(this);
   }
 
-  onRowSelect(rowNumber) {
-    this.setState({subGraphEditRow: rowNumber});
+  generalize() {
+    const subGraphEditsUpdated = [...this.state.subGraphEdits];
+    let generalizePromise = Promise.resolve();
+    subGraphEditsUpdated.forEach((subgraph, index) => {
+      Object.values(subgraph).forEach((graphItem) => {
+        generalizePromise = generalizePromise.then(() => {
+          return graphItem.generalize(this.props.rawTableData[index]);
+        });
+      });
+    });
+    generalizePromise.then(() => this.setState({subGraphEdits: subGraphEditsUpdated}));
+  }
+
+  onRowSelect(rowNumber, event) {
+    if(event === "onEdit") {
+      this.setState({subGraphEditRow: rowNumber});
+    } else if (event === "onGeneralize") {
+      this.setState((state) => {
+        const graphToGeneralize = state.subGraphEdits[rowNumber];
+        return {
+          subGraphEdits: state.subGraphEdits.map((subgraph, index) => {
+            if(index + 1 === rowNumber) {
+              return graphToGeneralize;
+            } else {
+              return cloneSubgraph(graphToGeneralize);
+            }
+          })
+        };
+      }, this.generalize);
+    }
   }
 
   onSubGraphSave(subgraph) {
@@ -45,7 +75,11 @@ export default class Injestor extends React.Component {
     const { subGraphEditRow, subGraphEdits } = this.state;
     return subGraphEditRow === undefined ?
       <div>
-        <DataTable data={rawTableData} selectedRow={this.onRowSelect}/>
+        <DataTable
+          data={rawTableData}
+          onRowSelect={this.onRowSelect}
+          rowEvents={[["Edit Sub-Graph", "onEdit"], ["Generalize Row", "onGeneralize"]]}
+        />
         <button onClick={this.onUpload}>Upload</button>
       </div> :
       <SubGraphEditor

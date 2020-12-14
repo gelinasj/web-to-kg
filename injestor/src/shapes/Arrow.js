@@ -17,6 +17,12 @@ class Arrow extends Shape {
         this.translateEndBounds = this.translateEndBounds.bind(this)
     }
 
+    clone() {
+      let clone = new Arrow(this.width, this.startX, this.startY, this.endX, this.endY, this.color, this.borderColor);
+      super.clone(clone);
+      return clone;
+    }
+
     get dx() {
         return this.endX - this.startX;
     }

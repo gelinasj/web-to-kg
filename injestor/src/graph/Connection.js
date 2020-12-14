@@ -1,12 +1,26 @@
 import GraphItem from "./GraphItem.js";
 import Arrow from "../shapes/Arrow.js";
+import { getClone } from "../auxillary/auxillary.js";
 
 class Connection extends GraphItem {
-    constructor(width, startX, startY, endX, endY, color, borderColor) {
-        super(new Arrow(width, startX, startY, endX, endY, color, borderColor));
+    constructor(width, startX, startY, endX, endY, color, borderColor, initializeEmpty=false) {
+        super(initializeEmpty ? undefined : new Arrow(width, startX, startY, endX, endY, color, borderColor), initializeEmpty);
         this.to = null;
         this.from = null;
         this.qualifiers = [];
+    }
+
+    clone(alreadyCloned) {
+      let clone = getClone(this, alreadyCloned);
+      if(clone === undefined) {
+        clone = new Connection(undefined, undefined, undefined, undefined, undefined, undefined, undefined, true);
+        super.clone(clone, alreadyCloned);
+        alreadyCloned.push([this, clone]);
+        clone.to = this.to && this.to.clone(alreadyCloned);
+        clone.from = this.from && this.from.clone(alreadyCloned);
+        clone.qualifiers = this.qualifiers.map((qualifier) => qualifier.clone(alreadyCloned));
+      }
+      return clone;
     }
 
     getTripleData() {

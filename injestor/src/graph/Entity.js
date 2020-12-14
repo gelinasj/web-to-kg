@@ -1,11 +1,24 @@
 import GraphItem from "./GraphItem.js";
 import Circle from "../shapes/Circle.js";
+import { getClone } from "../auxillary/auxillary.js";
 
 class Entity extends GraphItem {
-    constructor(top, left, diameter, color, borderColor) {
-        super(new Circle(top, left, diameter, color, borderColor));
+    constructor(top, left, diameter, color, borderColor, initializeEmpty=false) {
+        super(initializeEmpty ? undefined : new Circle(top, left, diameter, color, borderColor), initializeEmpty);
         this.incoming = [];
         this.outgoing = [];
+    }
+
+    clone(alreadyCloned) {
+      let clone = getClone(this, alreadyCloned);
+      if(clone === undefined) {
+        clone = new Entity(undefined, undefined, undefined, undefined, undefined, true);
+        super.clone(clone, alreadyCloned);
+        alreadyCloned.push([this, clone]);
+        clone.incoming = this.incoming.map(([item, connectorId]) => [item.clone(alreadyCloned), connectorId]);
+        clone.outgoing = this.outgoing.map(([item, connectorId]) => [item.clone(alreadyCloned), connectorId]);
+      }
+      return clone;
     }
 
     setLocation(canvasX, canvasY, pX, pY, optional={}) {

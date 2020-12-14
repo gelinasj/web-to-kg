@@ -1,7 +1,7 @@
 import wdk from "wikidata-sdk";
 import $ from "jquery";
 
-function requestDataFunc(currentTypedString, handler){
+export function requestDataFunc(currentTypedString, handler){
     if(currentTypedString) {
         const url = wdk.searchEntities(currentTypedString);
         $.ajax({
@@ -12,7 +12,7 @@ function requestDataFunc(currentTypedString, handler){
     }
 };
 
-function processReceivedDataFunc(data) {
+export function processReceivedDataFunc(data) {
     return data.search;
 }
 

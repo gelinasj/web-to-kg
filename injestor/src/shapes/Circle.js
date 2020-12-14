@@ -13,6 +13,12 @@ class Circle extends Shape {
         this.shouldShadow = false;
     }
 
+    clone() {
+      let clone = new Circle(this.top, this.left, this.diameter, this.color, this.borderColor, this.dotted);
+      super.clone(clone);
+      return clone;
+    }
+
     get radius() {
         return this.diameter/2;
     }

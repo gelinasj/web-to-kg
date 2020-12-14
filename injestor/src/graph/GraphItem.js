@@ -1,11 +1,31 @@
+import { requestDataFunc, processReceivedDataFunc } from "../auxillary/autocomplete.js";
 
 class GraphItem {
-    constructor(shape) {
+    constructor(shape, initializeEmpty) {
+      if(!initializeEmpty) {
         this.shape = shape;
         this.lastUpdated = 0;
         this.kgInfo = null;
         this.bindings = {};
-        this.updateTime();
+      }
+      this.updateTime();
+    }
+
+    generalize(tableData) {
+      const rowBindings = Object.keys(this.bindings);
+      if(rowBindings !== 0) {
+        requestDataFunc(tableData[rowBindings[0]], (data) => {
+          const arr = processReceivedDataFunc(data);
+          this.kgInfo = arr[0];
+        });
+      }
+    }
+
+    clone(clone, alreadyCloned) {
+      clone.shape = this.shape.clone();
+      clone.lastUpdated = this.lastUpdated;
+      clone.kgInfo = this.kgInfo && JSON.parse(JSON.stringify(this.kgInfo));
+      clone.bindings = JSON.parse(JSON.stringify(this.bindings));
     }
 
     getRawData() {

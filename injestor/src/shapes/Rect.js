@@ -12,6 +12,12 @@ class Rect extends Shape {
         this.borderColor = borderColor;
     }
 
+    clone() {
+      let clone = new Rect(this.top, this.left, this.width, this.height, this.color, this.borderColor);
+      super.clone(clone);
+      return clone;
+    }
+
     get connectors() {
         const halfWidth = this.width/2;
         const halfHeight = this.height/2;
