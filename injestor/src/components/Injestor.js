@@ -19,7 +19,6 @@ export default class Injestor extends React.Component {
   }
 
   generalize() {
-    console.log(this.state.subGraphEdits);
     const subGraphEditsUpdated = [...this.state.subGraphEdits];
     let generalizePromise = Promise.resolve();
     subGraphEditsUpdated.forEach((subgraph, index) => {
@@ -54,7 +53,8 @@ export default class Injestor extends React.Component {
   onSubGraphSave(subgraph) {
     this.setState((state) => {
       const subGraphEditsUpdated = [...state.subGraphEdits];
-      subGraphEditsUpdated[state.subGraphEditRow] = subgraph;
+      subGraphEditsUpdated[state.subGraphEditRow - 1] = subgraph;
+      console.log(subGraphEditsUpdated);
       return {
         subGraphEditRow: undefined,
         subGraphEdits: subGraphEditsUpdated
@@ -63,8 +63,11 @@ export default class Injestor extends React.Component {
   }
 
   printGraphTriples(subgraph) {
-    Object.values(subgraph).filter((graphItem) => graphItem instanceof Connection).
-      map((item) => console.log(item.getTripleData()));
+    Object.values(subgraph).filter(
+      (graphItem) => graphItem instanceof Connection
+    ).map(
+      (item) => console.log(item.getTripleData())
+    );
   }
 
   onUpload() {

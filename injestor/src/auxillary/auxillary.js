@@ -98,8 +98,7 @@ function getClone(item, alreadyCloned) {
   if(foundPair === undefined) {
     return undefined;
   } else {
-    const [foundItem, clone] = foundPair;
-    return clone;
+    return foundPair[1];
   }
 }
 
