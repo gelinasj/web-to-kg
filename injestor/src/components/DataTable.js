@@ -19,7 +19,7 @@ export class DataTable extends React.Component {
         <tr key={index+1}>
           {this.getRow(row)}
           {rowEvents.map(([name, id]) => {
-            return <td><button onClick={() => onRowSelect(index+1, id)}>{name}</button></td>;
+            return <td key={id}><button onClick={() => onRowSelect(index+1, id)}>{name}</button></td>;
           })}
         </tr>
       );

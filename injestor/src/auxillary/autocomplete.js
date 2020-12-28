@@ -1,10 +1,23 @@
 import wdk from "wikidata-sdk";
 import $ from "jquery";
 
+export function getEntities(ids, handler) {
+  const t1 = performance.now();
+  const url = wdk.getEntities(ids, ['en'], []);
+  fetch(url)
+  .then(response => response.json())
+  .then(wdk.parse.wd.entities)
+  .then((i) => {
+    const t2 = performance.now();
+    console.log(`Time to fetch entity similarity info: ${(t2-t1)/1000} sec`);
+    handler(i);
+  })
+}
+
 export function requestDataFunc(currentTypedString, handler){
     if(currentTypedString) {
         const url = wdk.searchEntities(currentTypedString);
-        $.ajax({
+        return $.ajax({
             dataType: "json",
             url: url,
             success: handler

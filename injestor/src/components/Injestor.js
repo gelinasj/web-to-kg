@@ -2,7 +2,9 @@ import React from "react";
 import { SubGraphEditor } from "./SubGraphEditor.js";
 import { DataTable } from "./DataTable.js";
 import Connection from "../graph/Connection.js";
-import { cloneSubgraph } from "../auxillary/auxillary.js";
+import Entity from "../graph/Entity.js";
+import { cloneSubgraph, getOrCreate } from "../auxillary/auxillary.js";
+import { getEntities } from "../auxillary/autocomplete.js";
 
 export default class Injestor extends React.Component {
 
@@ -16,20 +18,66 @@ export default class Injestor extends React.Component {
     this.onSubGraphSave = this.onSubGraphSave.bind(this);
     this.onUpload = this.onUpload.bind(this);
     this.generalize = this.generalize.bind(this);
+    this.findSimilarities = this.findSimilarities.bind(this);
+  }
+
+  findSimilarities() {
+    let entitiesToBindings = {};
+    this.state.subGraphEdits.forEach((subgraph) => {
+      Object.values(subgraph).forEach((entity) => {
+        const boundColumns = Object.keys(entity.bindings);
+        if(entity instanceof Entity && boundColumns.length > 0 && entity.kgInfo !== null) {
+          const entityId = entity.kgInfo.id;
+          let alreadyBound = getOrCreate(entitiesToBindings, entityId, []);
+          entitiesToBindings[entityId] = alreadyBound.concat(boundColumns);
+        }
+      });
+    });
+    
+    getEntities(Object.keys(entitiesToBindings), (entities) => {
+      const t1 = performance.now();
+      let bindingToPropertyToValueToCount = {};
+      Object.entries(entities).forEach(([id, entity]) => {
+        const bindings = entitiesToBindings[id];
+        Object.entries(entity.claims).forEach(([property, values]) => {
+          bindings.forEach((binding) => {
+            let propertyToValueToCount = getOrCreate(bindingToPropertyToValueToCount, binding, {});
+            let valueToCount = getOrCreate(propertyToValueToCount, property, {});
+            values.forEach((value) => {
+              getOrCreate(valueToCount, value, 0);
+              valueToCount[value] += 1;
+            });
+          });
+        });
+      });
+      const iterations = Object.values(bindingToPropertyToValueToCount).map(
+        Object.values).flat().map(Object.values).flat().reduce((acc, curr) => acc + curr);
+      console.log(`Similarity finder iteration count: ${iterations}`);
+      const foundSimilarities = {};
+      Object.entries(bindingToPropertyToValueToCount).forEach(([binding, propertyToValueToCount]) => {
+        foundSimilarities[binding] = Object.entries(
+          propertyToValueToCount).map(([property, valueToCount]) => {
+            return Object.entries(valueToCount).map(([value, count]) => {
+              return [property, value, count];
+            });
+        }).flat();
+        foundSimilarities[binding].sort(([p1,v1,c1],[p2,v2,c2]) => c2 - c1);
+      });
+      const t2 = performance.now();
+      console.log(`Time to sanitize entity similarity info: ${(t2-t1)/1000} sec`);
+    });
   }
 
   generalize() {
     const subGraphEditsUpdated = [...this.state.subGraphEdits];
-    let generalizePromise = Promise.resolve();
+    let generalizePromise = [];
     subGraphEditsUpdated.forEach((subgraph, index) => {
-      Object.values(subgraph).forEach((graphItem) => {
-        generalizePromise = generalizePromise.then(() => {
-          return graphItem.generalize(this.props.rawTableData[index + 1]);
-        });
-      });
+      generalizePromise = Object.values(subgraph).map((graphItem) => {
+        return graphItem.generalize(this.props.rawTableData[index + 1]);
+      }).concat(generalizePromise);
     });
-    generalizePromise.then(() => {
-      this.setState({subGraphEdits: subGraphEditsUpdated});
+    Promise.all(generalizePromise).then(() => {
+      this.setState({subGraphEdits: subGraphEditsUpdated}, this.findSimilarities);
     });
   }
 

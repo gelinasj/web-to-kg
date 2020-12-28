@@ -8,7 +8,7 @@ const INPUT = [
   ["denali", "20310", "United States", "1906"],
   ["Kilimanjaro", "19341", "Tanzania", "1889"],
   ["K2", "28251", "Pakistan", "1954"],
-  ["Aconcagua", "22838", "Argnetina", "1897"]
+  ["Aconcagua", "22838", "Argentina", "1897"]
 ];
 
 ReactDOM.render(

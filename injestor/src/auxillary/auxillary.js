@@ -102,8 +102,18 @@ function getClone(item, alreadyCloned) {
   }
 }
 
+function getOrCreate(map, key, valIfEmpty) {
+  let val = map[key];
+  if(val === undefined) {
+    map[key] = valIfEmpty;
+    return valIfEmpty;
+  } else {
+    return val;
+  }
+}
+
 export {
   getClone, createLine, lteq, gteq, cloneSubgraph,
-  lineContainsPoint, getPosnWithBounds,
+  lineContainsPoint, getPosnWithBounds, getOrCreate,
   sortGraph, generateAction, setIntersection
 };

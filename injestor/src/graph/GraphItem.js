@@ -14,7 +14,7 @@ class GraphItem {
     generalize(tableData) {
       const rowBindings = Object.keys(this.bindings);
       if(rowBindings !== 0) {
-        requestDataFunc(tableData[rowBindings[0]], (data) => {
+        return requestDataFunc(tableData[rowBindings[0]], (data) => {
           const arr = processReceivedDataFunc(data);
           this.kgInfo = arr[0];
         });
