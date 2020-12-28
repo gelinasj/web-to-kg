@@ -33,7 +33,7 @@ export default class Injestor extends React.Component {
         }
       });
     });
-    
+
     getEntities(Object.keys(entitiesToBindings), (entities) => {
       const t1 = performance.now();
       let bindingToPropertyToValueToCount = {};
@@ -65,6 +65,7 @@ export default class Injestor extends React.Component {
       });
       const t2 = performance.now();
       console.log(`Time to sanitize entity similarity info: ${(t2-t1)/1000} sec`);
+      //update state with similarities
     });
   }
 
