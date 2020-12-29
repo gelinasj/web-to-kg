@@ -12,7 +12,8 @@ export default class Injestor extends React.Component {
     super(props);
     this.state = {
       subGraphEditRow: undefined,
-      subGraphEdits: props.rawTableData.slice(1).map((row) => {return {};})
+      subGraphEdits: props.rawTableData.slice(1).map((row) => {return {};}),
+      foundSimilarities: undefined
     };
     this.onRowSelect = this.onRowSelect.bind(this);
     this.onSubGraphSave = this.onSubGraphSave.bind(this);
@@ -62,10 +63,11 @@ export default class Injestor extends React.Component {
             });
         }).flat();
         foundSimilarities[binding].sort(([p1,v1,c1],[p2,v2,c2]) => c2 - c1);
+        foundSimilarities[binding] = foundSimilarities[binding].slice(0, 4)
       });
+      this.setState({foundSimilarities});
       const t2 = performance.now();
       console.log(`Time to sanitize entity similarity info: ${(t2-t1)/1000} sec`);
-      //update state with similarities
     });
   }
 
@@ -124,23 +126,47 @@ export default class Injestor extends React.Component {
     this.state.subGraphEdits.map(this.printGraphTriples);
   }
 
+  getFilters() {
+    const { foundSimilarities } = this.state;
+    if (foundSimilarities === undefined) {
+      return undefined;
+    }
+    const filters = {};
+    Object.entries(foundSimilarities).forEach(([binding, similarities]) => {
+      filters[binding] = similarities.map(([p, v, c], index) => {
+        return {
+          name: `${p}->${v}`,
+          value: [p, v, c]
+        }
+      })
+    });
+    return filters;
+  }
+
   render() {
     const { rawTableData } = this.props;
     const { subGraphEditRow, subGraphEdits } = this.state;
-    return subGraphEditRow === undefined ?
-      <div>
-        <DataTable
-          data={rawTableData}
-          onRowSelect={this.onRowSelect}
-          rowEvents={[["Edit Sub-Graph", "onEdit"], ["Generalize Row", "onGeneralize"]]}
+    if (subGraphEditRow === undefined) {
+      return (
+        <div>
+          <DataTable
+            data={rawTableData}
+            onRowSelect={this.onRowSelect}
+            rowEvents={[["Edit Sub-Graph", "onEdit"], ["Generalize Row", "onGeneralize"]]}
+            filters={this.getFilters()}
+          />
+          <button onClick={this.onUpload}>Upload</button>
+        </div>
+      );
+    } else {
+      return (
+        <SubGraphEditor
+          initialSubgraph={subGraphEdits[subGraphEditRow - 1]}
+          rowHeaders={rawTableData[0]}
+          rowData={rawTableData[subGraphEditRow]}
+          onSave={this.onSubGraphSave}
         />
-        <button onClick={this.onUpload}>Upload</button>
-      </div> :
-      <SubGraphEditor
-        initialSubgraph={subGraphEdits[subGraphEditRow - 1]}
-        rowHeaders={rawTableData[0]}
-        rowData={rawTableData[subGraphEditRow]}
-        onSave={this.onSubGraphSave}
-      />;
+      );
+    }
   }
 }

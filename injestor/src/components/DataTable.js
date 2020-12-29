@@ -1,5 +1,6 @@
 import React from "react";
 import Table from 'react-bootstrap/Table';
+import { Multiselect } from 'multiselect-react-dropdown';
 import "../auxillary/style.css";
 
 export class DataTable extends React.Component {
@@ -13,8 +14,8 @@ export class DataTable extends React.Component {
   }
 
   getBody(rows) {
-    const { onRowSelect, rowEvents } = this.props;
-    return rows.map((row, index) => {
+    const { onRowSelect, rowEvents, filters } = this.props;
+    const body = rows.map((row, index) => {
       return (
         <tr key={index+1}>
           {this.getRow(row)}
@@ -24,6 +25,30 @@ export class DataTable extends React.Component {
         </tr>
       );
     });
+    if(filters !== undefined) {
+      const filterRow = (
+        <tr key={"filter"}>
+          {rows[0].map((tmp,index) => {
+            return (
+              <td key={index}>
+               {(filters[index] === undefined) ?
+                 undefined :
+                 <Multiselect
+                   id={index}
+                   placeholder="Filters"
+                   options={filters[index]} // Options to display in the dropdown
+                   onSelect={console.log} // Function will trigger on select event
+                   onRemove={console.log} // Function will trigger on remove event
+                   displayValue="name" // Property name to display in the dropdown options
+                 />
+               }
+              </td>
+            );
+          })}
+        </tr>);
+        body.unshift(filterRow);
+    }
+    return body;
   }
 
   render() {
