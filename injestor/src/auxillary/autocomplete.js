@@ -14,12 +14,6 @@ export function getEntities(ids) {
   });
 }
 
-export function getReadableEntity(id) {
-  return getEntities([id]).then((obj) => {
-    return [id, obj[id].labels.en];
-  })
-}
-
 export function requestDataFunc(currentTypedString, handler){
     if(currentTypedString) {
         const url = wdk.searchEntities(currentTypedString);

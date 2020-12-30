@@ -4,7 +4,7 @@ import { DataTable } from "./DataTable.js";
 import Connection from "../graph/Connection.js";
 import Entity from "../graph/Entity.js";
 import { cloneSubgraph, getOrCreate } from "../auxillary/auxillary.js";
-import { getEntities, getReadableEntity } from "../auxillary/autocomplete.js";
+import { getEntities } from "../auxillary/autocomplete.js";
 
 export default class Injestor extends React.Component {
 
@@ -65,16 +65,31 @@ export default class Injestor extends React.Component {
         foundSimilarities[binding].sort(([p1,v1,c1],[p2,v2,c2]) => c2 - c1);
         foundSimilarities[binding] = foundSimilarities[binding].slice(0, 4)
       });
-      const similaritiesPromise = Promise.all(Object.entries(foundSimilarities)
-      .map(([binding, similarities]) => {
-        return Promise.all([binding, Promise.all(similarities.map(([prop,val,count]) => {
-          return Promise.all([getReadableEntity(prop), getReadableEntity(val), count])
-        }))]);
-      }));
-      similaritiesPromise.then((similarityMapArray) => {
+      const ids = [];
+      const similaritiesPromise = Object.entries(foundSimilarities)
+      .forEach(([binding, similarities]) => {
+        similarities.forEach(([prop,val,count]) => {
+          if(prop.includes("P")) {
+            ids.push(prop);
+          }
+          if(val.includes("Q")) {
+            ids.push(val);
+          }
+        });
+      });
+
+      getEntities(ids).then((idToEntityMap) => {
         const readableSimilarityMap = {};
-        similarityMapArray.forEach(([binding, similarities]) => {
-          readableSimilarityMap[binding] = similarities;
+        Object.entries(foundSimilarities)
+        .forEach(([binding, similarities]) => {
+          readableSimilarityMap[binding] =
+          similarities.map(([prop,val,count]) => {
+            const propObj = idToEntityMap[prop];
+            const valObj = idToEntityMap[val];
+            const propPair = propObj === undefined ? [prop, prop] : [prop, propObj.labels.en];
+            const valPair = valObj === undefined ? [val, val] : [val, valObj.labels.en];
+            return [propPair, valPair, count];
+          });
         });
         this.setState({foundSimilarities: readableSimilarityMap});
         const t2 = performance.now();
