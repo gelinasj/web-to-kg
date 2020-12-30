@@ -4,7 +4,7 @@ import { DataTable } from "./DataTable.js";
 import Connection from "../graph/Connection.js";
 import Entity from "../graph/Entity.js";
 import { cloneSubgraph, getOrCreate } from "../auxillary/auxillary.js";
-import { getEntities } from "../auxillary/autocomplete.js";
+import { getEntities, getReadableEntity } from "../auxillary/autocomplete.js";
 
 export default class Injestor extends React.Component {
 
@@ -35,7 +35,7 @@ export default class Injestor extends React.Component {
       });
     });
 
-    getEntities(Object.keys(entitiesToBindings), (entities) => {
+    getEntities(Object.keys(entitiesToBindings)).then((entities) => {
       const t1 = performance.now();
       let bindingToPropertyToValueToCount = {};
       Object.entries(entities).forEach(([id, entity]) => {
@@ -65,9 +65,21 @@ export default class Injestor extends React.Component {
         foundSimilarities[binding].sort(([p1,v1,c1],[p2,v2,c2]) => c2 - c1);
         foundSimilarities[binding] = foundSimilarities[binding].slice(0, 4)
       });
-      this.setState({foundSimilarities});
-      const t2 = performance.now();
-      console.log(`Time to sanitize entity similarity info: ${(t2-t1)/1000} sec`);
+      const similaritiesPromise = Promise.all(Object.entries(foundSimilarities)
+      .map(([binding, similarities]) => {
+        return Promise.all([binding, Promise.all(similarities.map(([prop,val,count]) => {
+          return Promise.all([getReadableEntity(prop), getReadableEntity(val), count])
+        }))]);
+      }));
+      similaritiesPromise.then((similarityMapArray) => {
+        const readableSimilarityMap = {};
+        similarityMapArray.forEach(([binding, similarities]) => {
+          readableSimilarityMap[binding] = similarities;
+        });
+        this.setState({foundSimilarities: readableSimilarityMap});
+        const t2 = performance.now();
+        console.log(`Time to sanitize entity similarity info: ${(t2-t1)/1000} sec`);
+      })
     });
   }
 
@@ -133,10 +145,10 @@ export default class Injestor extends React.Component {
     }
     const filters = {};
     Object.entries(foundSimilarities).forEach(([binding, similarities]) => {
-      filters[binding] = similarities.map(([p, v, c], index) => {
+      filters[binding] = similarities.map(([[pid,p], [vid,v], c], index) => {
         return {
-          name: `${p}->${v}`,
-          value: [p, v, c]
+          name: `${p}: ${v}`,
+          value: [pid, vid, c]
         }
       })
     });
