@@ -9,7 +9,7 @@ export function getEntities(ids) {
   .then(wdk.parse.wd.entities)
   .then((i) => {
     const t2 = performance.now();
-    console.log(`Time to fetch entity similarity info: ${(t2-t1)/1000} sec`);
+    console.log(`Time to fetch entity info: ${(t2-t1)/1000} sec`);
     return i;
   });
 }

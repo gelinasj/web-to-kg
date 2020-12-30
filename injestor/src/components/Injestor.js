@@ -37,7 +37,7 @@ export default class Injestor extends React.Component {
     const entityIds = Object.keys(entitiesToBindings);
     if(entityIds.length > 0) {
       getEntities(Object.keys(entitiesToBindings)).then((entities) => {
-        const t1 = performance.now();
+        //const t1 = performance.now();
         let bindingToPropertyToValueToCount = {};
         Object.entries(entities).forEach(([id, entity]) => {
           const bindings = entitiesToBindings[id];
@@ -54,7 +54,7 @@ export default class Injestor extends React.Component {
         });
         const iterations = Object.values(bindingToPropertyToValueToCount).map(
           Object.values).flat().map(Object.values).flat().reduce((acc, curr) => acc + curr);
-        console.log(`Similarity finder iteration count: ${iterations}`);
+        //console.log(`Similarity finder iteration count: ${iterations}`);
         const foundSimilarities = {};
         Object.entries(bindingToPropertyToValueToCount).forEach(([binding, propertyToValueToCount]) => {
           foundSimilarities[binding] = Object.entries(
@@ -93,8 +93,8 @@ export default class Injestor extends React.Component {
             });
           });
           this.setState({foundSimilarities: readableSimilarityMap});
-          const t2 = performance.now();
-          console.log(`Time to sanitize entity similarity info: ${(t2-t1)/1000} sec`);
+          //const t2 = performance.now();
+          //console.log(`Time to sanitize entity similarity info: ${(t2-t1)/1000} sec`);
         })
       });
     }
