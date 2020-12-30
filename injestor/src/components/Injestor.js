@@ -34,68 +34,70 @@ export default class Injestor extends React.Component {
         }
       });
     });
-
-    getEntities(Object.keys(entitiesToBindings)).then((entities) => {
-      const t1 = performance.now();
-      let bindingToPropertyToValueToCount = {};
-      Object.entries(entities).forEach(([id, entity]) => {
-        const bindings = entitiesToBindings[id];
-        Object.entries(entity.claims).forEach(([property, values]) => {
-          bindings.forEach((binding) => {
-            let propertyToValueToCount = getOrCreate(bindingToPropertyToValueToCount, binding, {});
-            let valueToCount = getOrCreate(propertyToValueToCount, property, {});
-            values.forEach((value) => {
-              getOrCreate(valueToCount, value, 0);
-              valueToCount[value] += 1;
+    const entityIds = Object.keys(entitiesToBindings);
+    if(entityIds.length > 0) {
+      getEntities(Object.keys(entitiesToBindings)).then((entities) => {
+        const t1 = performance.now();
+        let bindingToPropertyToValueToCount = {};
+        Object.entries(entities).forEach(([id, entity]) => {
+          const bindings = entitiesToBindings[id];
+          Object.entries(entity.claims).forEach(([property, values]) => {
+            bindings.forEach((binding) => {
+              let propertyToValueToCount = getOrCreate(bindingToPropertyToValueToCount, binding, {});
+              let valueToCount = getOrCreate(propertyToValueToCount, property, {});
+              values.forEach((value) => {
+                getOrCreate(valueToCount, value, 0);
+                valueToCount[value] += 1;
+              });
             });
           });
         });
-      });
-      const iterations = Object.values(bindingToPropertyToValueToCount).map(
-        Object.values).flat().map(Object.values).flat().reduce((acc, curr) => acc + curr);
-      console.log(`Similarity finder iteration count: ${iterations}`);
-      const foundSimilarities = {};
-      Object.entries(bindingToPropertyToValueToCount).forEach(([binding, propertyToValueToCount]) => {
-        foundSimilarities[binding] = Object.entries(
-          propertyToValueToCount).map(([property, valueToCount]) => {
-            return Object.entries(valueToCount).map(([value, count]) => {
-              return [property, value, count];
-            });
-        }).flat();
-        foundSimilarities[binding].sort(([p1,v1,c1],[p2,v2,c2]) => c2 - c1);
-        foundSimilarities[binding] = foundSimilarities[binding].slice(0, 4)
-      });
-      const ids = [];
-      const similaritiesPromise = Object.entries(foundSimilarities)
-      .forEach(([binding, similarities]) => {
-        similarities.forEach(([prop,val,count]) => {
-          if(prop.includes("P")) {
-            ids.push(prop);
-          }
-          if(val.includes("Q")) {
-            ids.push(val);
-          }
+        const iterations = Object.values(bindingToPropertyToValueToCount).map(
+          Object.values).flat().map(Object.values).flat().reduce((acc, curr) => acc + curr);
+        console.log(`Similarity finder iteration count: ${iterations}`);
+        const foundSimilarities = {};
+        Object.entries(bindingToPropertyToValueToCount).forEach(([binding, propertyToValueToCount]) => {
+          foundSimilarities[binding] = Object.entries(
+            propertyToValueToCount).map(([property, valueToCount]) => {
+              return Object.entries(valueToCount).map(([value, count]) => {
+                return [property, value, count];
+              });
+          }).flat();
+          foundSimilarities[binding].sort(([p1,v1,c1],[p2,v2,c2]) => c2 - c1);
+          foundSimilarities[binding] = foundSimilarities[binding].slice(0, 4)
         });
-      });
-
-      getEntities(ids).then((idToEntityMap) => {
-        const readableSimilarityMap = {};
-        Object.entries(foundSimilarities)
+        const ids = [];
+        const similaritiesPromise = Object.entries(foundSimilarities)
         .forEach(([binding, similarities]) => {
-          readableSimilarityMap[binding] =
-          similarities.map(([prop,val,count]) => {
-            const propObj = idToEntityMap[prop];
-            const valObj = idToEntityMap[val];
-            const propPair = propObj === undefined ? [prop, prop] : [prop, propObj.labels.en];
-            const valPair = valObj === undefined ? [val, val] : [val, valObj.labels.en];
-            return [propPair, valPair, count];
+          similarities.forEach(([prop,val,count]) => {
+            if(prop.includes("P")) {
+              ids.push(prop);
+            }
+            if(val.includes("Q")) {
+              ids.push(val);
+            }
           });
         });
-        this.setState({foundSimilarities: readableSimilarityMap});
-        const t2 = performance.now();
-        console.log(`Time to sanitize entity similarity info: ${(t2-t1)/1000} sec`);
-      })
-    });
+
+        getEntities(ids).then((idToEntityMap) => {
+          const readableSimilarityMap = {};
+          Object.entries(foundSimilarities)
+          .forEach(([binding, similarities]) => {
+            readableSimilarityMap[binding] =
+            similarities.map(([prop,val,count]) => {
+              const propObj = idToEntityMap[prop];
+              const valObj = idToEntityMap[val];
+              const propPair = propObj === undefined ? [prop, prop] : [prop, propObj.labels.en];
+              const valPair = valObj === undefined ? [val, val] : [val, valObj.labels.en];
+              return [propPair, valPair, count];
+            });
+          });
+          this.setState({foundSimilarities: readableSimilarityMap});
+          const t2 = performance.now();
+          console.log(`Time to sanitize entity similarity info: ${(t2-t1)/1000} sec`);
+        })
+      });
+    }
   }
 
   generalize() {
