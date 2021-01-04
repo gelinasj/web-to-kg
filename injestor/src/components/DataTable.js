@@ -28,7 +28,7 @@ export class DataTable extends React.Component {
     if(filters !== undefined) {
       const filterRow = (
         <tr key={"filter"}>
-          {rows[0].map((tmp,index) => {
+          {rows[0].map((unusedVar, index) => {
             return (
               <td key={index}>
                {(filters[index] === undefined) ?
@@ -36,9 +36,10 @@ export class DataTable extends React.Component {
                  <Multiselect
                    id={index}
                    placeholder="Filters"
-                   options={filters[index]} // Options to display in the dropdown
-                   onSelect={console.log} // Function will trigger on select event
-                   onRemove={console.log} // Function will trigger on remove event
+                   options={filters[index].all} // Options to display in the dropdown
+                   onSelect={filters[index].onSelect} // Function will trigger on select event
+                   onRemove={filters[index].onRemove} // Function will trigger on remove event
+                   selectedValues={filters[index].selected}
                    displayValue="name" // Property name to display in the dropdown options
                  />
                }

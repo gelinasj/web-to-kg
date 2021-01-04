@@ -13,7 +13,8 @@ export default class Injestor extends React.Component {
     this.state = {
       subGraphEditRow: undefined,
       subGraphEdits: props.rawTableData.slice(1).map((row) => {return {};}),
-      foundSimilarities: undefined
+      foundSimilarities: undefined,
+      selectedFilters: {}
     };
     this.onRowSelect = this.onRowSelect.bind(this);
     this.onSubGraphSave = this.onSubGraphSave.bind(this);
@@ -52,8 +53,8 @@ export default class Injestor extends React.Component {
             });
           });
         });
-        const iterations = Object.values(bindingToPropertyToValueToCount).map(
-          Object.values).flat().map(Object.values).flat().reduce((acc, curr) => acc + curr);
+        // const iterations = Object.values(bindingToPropertyToValueToCount).map(
+        //   Object.values).flat().map(Object.values).flat().reduce((acc, curr) => acc + curr);
         //console.log(`Similarity finder iteration count: ${iterations}`);
         const foundSimilarities = {};
         Object.entries(bindingToPropertyToValueToCount).forEach(([binding, propertyToValueToCount]) => {
@@ -67,8 +68,7 @@ export default class Injestor extends React.Component {
           foundSimilarities[binding] = foundSimilarities[binding].slice(0, 4)
         });
         const ids = [];
-        const similaritiesPromise = Object.entries(foundSimilarities)
-        .forEach(([binding, similarities]) => {
+        Object.entries(foundSimilarities).forEach(([binding, similarities]) => {
           similarities.forEach(([prop,val,count]) => {
             if(prop.includes("P")) {
               ids.push(prop);
@@ -156,18 +156,42 @@ export default class Injestor extends React.Component {
   }
 
   getFilters() {
-    const { foundSimilarities } = this.state;
+    const { rawTableData } = this.props;
+    const { foundSimilarities, selectedFilters } = this.state;
     if (foundSimilarities === undefined) {
       return undefined;
     }
     const filters = {};
     Object.entries(foundSimilarities).forEach(([binding, similarities]) => {
-      filters[binding] = similarities.map(([[pid,p], [vid,v], c], index) => {
-        return {
-          name: `${p}: ${v}`,
-          value: [pid, vid, c]
+      const allFilters = [];
+      const selected = [];
+      similarities.forEach(([[pid,p], [vid,v], c], index) => {
+        const filterObj = {
+          name: `${p}: ${v} (${c/(rawTableData.length - 1)*100}%)`,
+          value: [pid, vid, c],
+          binding: binding
+        };
+        allFilters.push(filterObj);
+        if(selectedFilters[binding]?.find(
+          ({value:[selectedPid,selectedVid,c]}) => selectedPid === pid && selectedVid === vid
+        ) !== undefined) {
+          selected.push(filterObj);
         }
-      })
+      });
+      const updateSelectedFilters = (handler) => (obj) => {
+        this.setState((state) => {
+          const newSelectedFilters = {...state.selectedFilters};
+          newSelectedFilters[binding] = obj;
+          return {selectedFilters: newSelectedFilters};
+        }, handler);
+      };
+      const bindingFilterInfo = {
+        all: allFilters,
+        selected: selected,
+        onSelect: updateSelectedFilters(() => {}),
+        onRemove: updateSelectedFilters(() => {})
+      }
+      filters[binding] = bindingFilterInfo;
     });
     return filters;
   }
