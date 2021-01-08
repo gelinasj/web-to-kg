@@ -1,4 +1,7 @@
-import { requestDataFunc, processReceivedDataFunc } from "../auxillary/autocomplete.js";
+import {
+  requestDataFunc, getEntities, processReceivedDataFunc
+} from "../auxillary/autocomplete.js";
+import { max } from "../auxillary/auxillary.js";
 
 class GraphItem {
     constructor(shape, initializeEmpty) {
@@ -11,12 +14,30 @@ class GraphItem {
       this.updateTime();
     }
 
-    generalize(tableData) {
+    generalize(tableData, filters) {
       const rowBindings = Object.keys(this.bindings);
       if(rowBindings !== 0) {
-        return requestDataFunc(tableData[rowBindings[0]], (data) => {
+        return requestDataFunc(tableData[rowBindings[0]]).then((data) => {
           const arr = processReceivedDataFunc(data);
-          this.kgInfo = arr[0];
+          const entityIds = arr.map((searchedEntity) => searchedEntity.id);
+          return getEntities(entityIds).then((entityInfo) => {
+            const filteredResults = Object.values(entityInfo).map((entity) => {
+              let score = 0;
+              const bindingFilters = filters[rowBindings[0]];
+              if(bindingFilters !== undefined) {
+                bindingFilters.forEach(({value:[pid,vid,c]}) => {
+                  const propertyVals = entity.claims[pid];
+                  if(propertyVals !== undefined) {
+                    score += propertyVals.includes(vid) ? 1 : 0;
+                  }
+                });
+              }
+              return [entity.id, score];
+            });
+            const bestEntity = max(filteredResults,
+              ([e1, score1], [e2, score2]) => score1 - score2);
+            this.kgInfo = arr.find((entityObj) => entityObj.id === bestEntity[0]);
+          });
         });
       }
     }

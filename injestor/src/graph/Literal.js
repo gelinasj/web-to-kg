@@ -10,7 +10,7 @@ class Literal extends GraphItem {
         this.connector = null;
     }
 
-    generalize(tableData) {
+    generalize(tableData, filters) {
       const rowBindings = Object.keys(this.bindings);
       if(rowBindings.length !== 0) {
         if(this.kgInfo.literalInputType === INPUT_TYPES.quantity) {

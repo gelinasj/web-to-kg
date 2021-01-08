@@ -105,7 +105,7 @@ export default class Injestor extends React.Component {
     let generalizePromise = [];
     subGraphEditsUpdated.forEach((subgraph, index) => {
       generalizePromise = Object.values(subgraph).map((graphItem) => {
-        return graphItem.generalize(this.props.rawTableData[index + 1]);
+        return graphItem.generalize(this.props.rawTableData[index + 1], this.state.selectedFilters);
       }).concat(generalizePromise);
     });
     Promise.all(generalizePromise).then(() => {
@@ -178,18 +178,18 @@ export default class Injestor extends React.Component {
           selected.push(filterObj);
         }
       });
-      const updateSelectedFilters = (handler) => (obj) => {
+      const updateSelectedFilters = (filterObjList) => {
         this.setState((state) => {
           const newSelectedFilters = {...state.selectedFilters};
-          newSelectedFilters[binding] = obj;
+          newSelectedFilters[binding] = filterObjList;
           return {selectedFilters: newSelectedFilters};
-        }, handler);
+        }, this.generalize);
       };
       const bindingFilterInfo = {
         all: allFilters,
         selected: selected,
-        onSelect: updateSelectedFilters(() => {}),
-        onRemove: updateSelectedFilters(() => {})
+        onSelect: updateSelectedFilters,
+        onRemove: updateSelectedFilters
       }
       filters[binding] = bindingFilterInfo;
     });

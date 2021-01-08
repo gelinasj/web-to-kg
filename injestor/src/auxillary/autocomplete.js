@@ -14,15 +14,17 @@ export function getEntities(ids) {
   });
 }
 
-export function requestDataFunc(currentTypedString, handler){
+export function requestDataFunc(currentTypedString){
+  return new Promise((resolve, reject) => {
     if(currentTypedString) {
-        const url = wdk.searchEntities(currentTypedString);
+        const url = wdk.searchEntities(currentTypedString, undefined, 5);
         return $.ajax({
             dataType: "json",
             url: url,
-            success: handler
+            success: resolve
         });
-    }
+    } else {resolve(undefined)}
+  });
 };
 
 export function processReceivedDataFunc(data) {
@@ -36,7 +38,7 @@ export function autocomplete(inp, onSelect) {
   /*execute a function when someone writes in the text field:*/
   inp.addEventListener("input", function(e) {
       var a, b, i, val = this.value;
-      requestDataFunc(val, (data) => {
+      requestDataFunc(val).then((data) => {
         const arr = processReceivedDataFunc(data);
         /*close any already open lists of autocompleted values*/
         closeAllLists();

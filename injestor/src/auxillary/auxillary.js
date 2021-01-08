@@ -112,8 +112,19 @@ function getOrCreate(map, key, valIfEmpty) {
   }
 }
 
+function max(arr, comparator) {
+  if(arr.length === 0) {
+    return undefined;
+  }
+  let max = arr[0];
+  arr.slice(0).forEach((item) => {
+    max = comparator(item, max) > 0 ? item : max;
+  });
+  return max;
+}
+
 export {
   getClone, createLine, lteq, gteq, cloneSubgraph,
   lineContainsPoint, getPosnWithBounds, getOrCreate,
-  sortGraph, generateAction, setIntersection
+  sortGraph, generateAction, setIntersection, max
 };
