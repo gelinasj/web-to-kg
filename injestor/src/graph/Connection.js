@@ -10,6 +10,10 @@ class Connection extends GraphItem {
         this.qualifiers = [];
     }
 
+    generalize(tableData, filters) {
+
+    }
+
     clone(alreadyCloned) {
       let clone = getClone(this, alreadyCloned);
       if(clone === undefined) {
