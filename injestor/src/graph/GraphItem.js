@@ -14,10 +14,13 @@ class GraphItem {
       this.updateTime();
     }
 
+    getBindingInfo() {
+      return undefined;
+    }
+
     generalize(tableData, filters) {
       const rowBindings = Object.keys(this.bindings);
       if(rowBindings !== 0) {
-        console.log(tableData[rowBindings[0]]);
         return requestDataFunc(tableData[rowBindings[0]]).then((data) => {
           const arr = processReceivedDataFunc(data);
           const entityIds = arr.map((searchedEntity) => searchedEntity.id);

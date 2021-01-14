@@ -10,7 +10,14 @@ export class DataTable extends React.Component {
   }
 
   getRow(row) {
-    return row.map((cell, index) => <td key={index}>{cell}</td>);
+    return row.map((cell, index) => {
+      if(cell.meta === undefined) {
+        return <td key={index}>{cell.raw}</td>;
+      } else {
+        const { name, link } = cell.meta;
+        return <td key={index}>{cell.raw} - <a href={link}><i>{name}</i></a></td>;
+      }
+    });
   }
 
   getBody(rows) {
@@ -53,13 +60,13 @@ export class DataTable extends React.Component {
   }
 
   render() {
-    const { data } = this.props;
+    const { headers, data } = this.props;
     return (
       <Table className="styled-table">
         <thead>
-          <tr>{this.getHeaders(data[0])}</tr>
+          <tr>{this.getHeaders(headers)}</tr>
         </thead>
-        <tbody>{this.getBody(data.slice(1))}</tbody>
+        <tbody>{this.getBody(data)}</tbody>
       </Table>
     );
   }

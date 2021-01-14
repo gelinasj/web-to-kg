@@ -9,6 +9,18 @@ class Entity extends GraphItem {
         this.outgoing = [];
     }
 
+    getBindingInfo() {
+      const bindingColumns = Object.keys(this.bindings);
+      if(bindingColumns.length > 0) {
+        return {
+          binding: bindingColumns[0],
+          kgInfo: this.kgInfo || undefined
+        };
+      } else {
+        return undefined;
+      }
+    }
+
     clone(alreadyCloned) {
       let clone = getClone(this, alreadyCloned);
       if(clone === undefined) {

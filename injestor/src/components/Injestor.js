@@ -196,6 +196,40 @@ export default class Injestor extends React.Component {
     return filters;
   }
 
+  joinRawAndKgDataTables(rawData, kgData) {
+    return rawData.map((rawRow, r) => {
+      const kgRow = kgData[r];
+      return rawRow.map((rawCell, c) => {
+        const kgCell = kgRow[c];
+        const join = {raw: rawCell};
+        if(kgCell !== undefined) {
+          join.meta = {
+            name: `${kgCell.label} (${kgCell.id})`,
+            link: kgCell.concepturi
+          };
+        };
+        return join
+      })
+    })
+  }
+
+  getData() {
+    const { rawTableData } = this.props;
+    const kgData = this.state.subGraphEdits.map((subgraph, i) => {
+      const rowKgData = new Array(rawTableData[i].length);
+      Object.values(subgraph).forEach((graphItem) => {
+        const bindingInfo = graphItem.getBindingInfo();
+        if(bindingInfo !== undefined) {
+          const { binding, kgInfo } = bindingInfo;
+          rowKgData[binding] = kgInfo;
+        }
+      });
+      return rowKgData;
+    });
+    const join = this.joinRawAndKgDataTables(rawTableData.slice(1), kgData);
+    return join;
+  }
+
   render() {
     const { rawTableData } = this.props;
     const { subGraphEditRow, subGraphEdits } = this.state;
@@ -203,7 +237,8 @@ export default class Injestor extends React.Component {
       return (
         <div>
           <DataTable
-            data={rawTableData}
+            headers={rawTableData[0]}
+            data={this.getData()}
             onRowSelect={this.onRowSelect}
             rowEvents={[["Edit Sub-Graph", "onEdit"], ["Generalize Row", "onGeneralize"]]}
             filters={this.getFilters()}
