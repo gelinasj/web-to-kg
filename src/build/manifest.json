@@ -29,5 +29,5 @@
   "options_ui": {
     "page": "options.html"
   },
-  "web_accessible_resources": ["popup.html"]
+  "web_accessible_resources": ["popup.html", "jquery-ui.css"]
 }

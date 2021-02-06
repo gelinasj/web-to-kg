@@ -1,3 +1,8 @@
+For loading unpacked extension, point Chrome to /build directory
+
+To update /build/manifest.json update /public/manifest.json
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

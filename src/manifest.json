@@ -9,7 +9,8 @@
     "scripts": ["static/js/background.js"]
   },
   "content_scripts": [{
-    "js": [ "static/js/content.js", "static/lib/jquery.js", "static/lib/jquery-ui.js" ],
+    "js": [ "static/js/content.js", "static/js/popup.js"],
+    "css": [ "static/css/popup.css"],
     "matches": [
       "http://*/*",
       "https://*/*",
@@ -29,5 +30,5 @@
   "options_ui": {
     "page": "options.html"
   },
-  "web_accessible_resources": ["popup.html"]
+  "web_accessible_resources": ["popup.html", "lib/jquery-ui.css"]
 }

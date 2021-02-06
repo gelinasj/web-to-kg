@@ -9,7 +9,8 @@
     "scripts": ["static/js/background.js"]
   },
   "content_scripts": [{
-    "js": [ "static/js/content.js" ],
+    "js": [ "static/js/content.js"],
+    "css": [ "static/css/popup.css"],
     "matches": [
       "http://*/*",
       "https://*/*",

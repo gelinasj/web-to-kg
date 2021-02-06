@@ -1,7 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Injestor from "./view/injestor/components/Injestor.js";
-const $ = window.$;
+import $ from 'jquery';
+import 'jquery-ui-bundle';
+import 'jquery-ui-bundle/jquery-ui.min.css';
+
+console.log("test");
 
 const INPUT = [
   ["name", "height", "country", "first ascent"],
@@ -25,6 +29,7 @@ $.ajax({
     dataType: "html",
     url: chrome.runtime.getURL("popup.html"),
     success: (html) => {
+      console.log("html", html);
       var div = $(html);
       document.body.insertBefore(div[0], document.body.lastChild.nextSibling);
       var width = 500;
