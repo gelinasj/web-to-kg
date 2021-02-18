@@ -11,9 +11,12 @@ const INPUT = [
   ["Aconcagua", "22838", "Argentina", "1897"]
 ];
 
+const app = document.createElement('div');
+app.id = "my-extension-root";
+document.body.appendChild(app);
 ReactDOM.render(
   <React.StrictMode>
     <Injestor rawTableData={INPUT}/>
   </React.StrictMode>,
-  document.getElementById('injestor')
+  app
 );
