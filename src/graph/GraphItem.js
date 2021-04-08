@@ -24,6 +24,7 @@ class GraphItem {
         return requestDataFunc(tableData[rowBindings[0]]).then((data) => {
           const arr = processReceivedDataFunc(data);
           const entityIds = arr.map((searchedEntity) => searchedEntity.id);
+          if(entityIds.length === 0) {this.kgInfo = null; return}
           return getEntities(entityIds).then((entityInfo) => {
             const filteredResults = Object.values(entityInfo).map((entity) => {
               let score = 0;
