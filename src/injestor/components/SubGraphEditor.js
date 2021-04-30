@@ -44,7 +44,7 @@ class SubGraphEditor extends React.Component {
     }
 
     getCanvas() {
-        const canvas = document.getElementById("SubGraphEditorCanvas");
+        const canvas = this.props.document.getElementById("SubGraphEditorCanvas");
         let ctx = canvas.getContext("2d");
         return {canvas, ctx};
     }
@@ -170,9 +170,9 @@ class SubGraphEditor extends React.Component {
     }
 
     initializeListeners() {
-        window.addEventListener("mousedown", this.onMouseDown);
-        window.addEventListener("mouseup", this.onMouseUp);
-        window.addEventListener("mousemove", this.onMouseMove);
+        this.props.window.addEventListener("mousedown", this.onMouseDown);
+        this.props.window.addEventListener("mouseup", this.onMouseUp);
+        this.props.window.addEventListener("mousemove", this.onMouseMove);
     }
 
     componentDidMount() {
@@ -183,13 +183,15 @@ class SubGraphEditor extends React.Component {
     }
 
     componentWillUnmount() {
-      window.removeEventListener("mousedown", this.onMouseDown);
-      window.removeEventListener("mouseup", this.onMouseUp);
-      window.removeEventListener("mousemove", this.onMouseMove);
+      this.props.window.removeEventListener("mousedown", this.onMouseDown);
+      this.props.window.removeEventListener("mouseup", this.onMouseUp);
+      this.props.window.removeEventListener("mousemove", this.onMouseMove);
     }
 
     getCanvasPosn(e) {
-        return [e.clientX - this.canvasLeft, e.clientY - this.canvasTop];
+        const { canvas } = this.getCanvas();
+        const { x:canvasLeft , y:canvasTop } = canvas.getBoundingClientRect();
+        return [e.clientX - canvasLeft, e.clientY - canvasTop];
     }
 
     setDetailFocus() {
@@ -202,6 +204,8 @@ class SubGraphEditor extends React.Component {
     onMouseDown(e) {
         const {detailFocus} = this.state;
         const [mouseX, mouseY] = this.getCanvasPosn(e);
+        console.log("mouse down", e);
+        console.log("canvas posn", mouseX, mouseY);
         this.dragAction = DragAction.onMouseDown(this.menuItems, this.subgraph, mouseX, mouseY);
         this.proximateConnector = this.getProximateConnector();
         if(mouseX < this.canvasWidth && mouseY < this.canvasHeight && mouseX > 0 && mouseY > 0) {
@@ -285,6 +289,7 @@ class SubGraphEditor extends React.Component {
                 bindings={this.subgraph[detailFocus].bindings}
                 canvasWidth={CANVAS_WIDTH}
                 canvasHeight={CANVAS_HEIGHT}
+                doc={this.props.document}
                 />}
             <Table className="styled-table">
               <thead id="loading">

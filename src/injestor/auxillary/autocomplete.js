@@ -1,37 +1,30 @@
-import wdk from "wikidata-sdk";
+/*global chrome*/
 import $ from "jquery";
 
 export function getEntities(ids) {
-  const t1 = performance.now();
-  const url = wdk.getEntities(ids, ['en'], []);
-  return fetch(url)
-  .then(response => response.json())
-  .then(wdk.parse.wd.entities)
-  .then((i) => {
-    const t2 = performance.now();
-    console.log(`Time to fetch entity info: ${(t2-t1)/1000} sec`);
-    return i;
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage({
+      type: "id_search",
+      data: ids
+    }, resolve);
   });
 }
 
-export function requestDataFunc(currentTypedString){
+
+export function requestDataFunc(currentTypedString) {
   return new Promise((resolve, reject) => {
-    if(currentTypedString) {
-        const url = wdk.searchEntities(currentTypedString, undefined, 5);
-        return $.ajax({
-            dataType: "json",
-            url: url,
-            success: resolve
-        });
-    } else {resolve(undefined)}
+    chrome.runtime.sendMessage({
+      type: "autocomplete",
+      data: currentTypedString
+    }, resolve);
   });
-};
+}
 
 export function processReceivedDataFunc(data) {
     return data.search;
 }
 
-export function autocomplete(inp, onSelect) {
+export function autocomplete(inp, onSelect, doc) {
   /*the autocomplete function takes two arguments,
   the text field element and an array of possible autocompleted values:*/
   var currentFocus;
@@ -39,13 +32,14 @@ export function autocomplete(inp, onSelect) {
   inp.addEventListener("input", function(e) {
       var a, b, i, val = this.value;
       requestDataFunc(val).then((data) => {
+        console.log(JSON.stringify(data))
         const arr = processReceivedDataFunc(data);
         /*close any already open lists of autocompleted values*/
         closeAllLists();
         if (!val) { return false;}
         currentFocus = -1;
         /*create a DIV element that will contain the items (values):*/
-        a = document.createElement("DIV");
+        a = doc.createElement("DIV");
         a.setAttribute("id", this.id + "autocomplete-list");
         a.setAttribute("class", "autocomplete-items");
         /*append the DIV element as a child of the autocomplete container:*/
@@ -55,7 +49,7 @@ export function autocomplete(inp, onSelect) {
           const searchItem = arr[i];
           const {id, label, description} = searchItem;
             /*create a DIV element for each matching element:*/
-            b = document.createElement("DIV");
+            b = doc.createElement("DIV");
             /*make the matching letters bold:*/
             b.innerHTML = `<strong>${label} (${id})</strong> - `;
             b.innerHTML += description;
@@ -74,7 +68,7 @@ export function autocomplete(inp, onSelect) {
   });
   /*execute a function presses a key on the keyboard:*/
   inp.addEventListener("keydown", function(e) {
-      var x = document.getElementById(this.id + "autocomplete-list");
+      var x = doc.getElementById(this.id + "autocomplete-list");
       if (x) x = x.getElementsByTagName("div");
       if (e.keyCode === 40) {
         /*If the arrow DOWN key is pressed,
@@ -114,17 +108,17 @@ export function autocomplete(inp, onSelect) {
     }
   }
   function closeAllLists(elmnt) {
-    /*close all autocomplete lists in the document,
+    /*close all autocomplete lists in the doc,
     except the one passed as an argument:*/
-    var x = document.getElementsByClassName("autocomplete-items");
+    var x = doc.getElementsByClassName("autocomplete-items");
     for (var i = 0; i < x.length; i++) {
       if (elmnt !== x[i] && elmnt !== inp) {
         x[i].parentNode.removeChild(x[i]);
       }
     }
   }
-  /*execute a function when someone clicks in the document:*/
-  document.addEventListener("click", function (e) {
+  /*execute a function when someone clicks in the doc:*/
+  doc.addEventListener("click", function (e) {
       closeAllLists(e.target);
   });
 }

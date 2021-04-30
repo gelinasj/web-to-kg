@@ -36,9 +36,10 @@ export default class Injestor extends React.Component {
       });
     });
     const entityIds = Object.keys(entitiesToBindings);
+    console.log("BBBBBBB");
     if(entityIds.length > 0) {
-      getEntities(Object.keys(entitiesToBindings)).then((entities) => {
-        //const t1 = performance.now();
+      console.log("AAAAAAAAA");
+      getEntities(entityIds).then((entities) => {
         let bindingToPropertyToValueToCount = {};
         Object.entries(entities).forEach(([id, entity]) => {
           const bindings = entitiesToBindings[id];
@@ -53,9 +54,6 @@ export default class Injestor extends React.Component {
             });
           });
         });
-        // const iterations = Object.values(bindingToPropertyToValueToCount).map(
-        //   Object.values).flat().map(Object.values).flat().reduce((acc, curr) => acc + curr);
-        //console.log(`Similarity finder iteration count: ${iterations}`);
         const foundSimilarities = {};
         Object.entries(bindingToPropertyToValueToCount).forEach(([binding, propertyToValueToCount]) => {
           foundSimilarities[binding] = Object.entries(
@@ -78,7 +76,6 @@ export default class Injestor extends React.Component {
             }
           });
         });
-
         getEntities(ids).then((idToEntityMap) => {
           const readableSimilarityMap = {};
           Object.entries(foundSimilarities)
@@ -93,8 +90,6 @@ export default class Injestor extends React.Component {
             });
           });
           this.setState({foundSimilarities: readableSimilarityMap});
-          //const t2 = performance.now();
-          //console.log(`Time to sanitize entity similarity info: ${(t2-t1)/1000} sec`);
         })
       });
     }
@@ -231,7 +226,7 @@ export default class Injestor extends React.Component {
   }
 
   render() {
-    const { rawTableData } = this.props;
+    const { rawTableData, window, document } = this.props;
     const { subGraphEditRow, subGraphEdits } = this.state;
     if (subGraphEditRow === undefined) {
       return (
@@ -253,6 +248,8 @@ export default class Injestor extends React.Component {
           rowHeaders={rawTableData[0]}
           rowData={rawTableData[subGraphEditRow]}
           onSave={this.onSubGraphSave}
+          window={window}
+          document={document}
         />
       );
     }

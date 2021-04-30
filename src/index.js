@@ -1,6 +1,7 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import Injestor from "./components/Injestor.js";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Injestor from "./injestor/components/Injestor.js";
+import registerServiceWorker from './registerServiceWorker';
 
 const INPUT = [
   ["name", "height", "country", "first ascent"],
@@ -8,15 +9,8 @@ const INPUT = [
   ["denal", "20310", "United States", "1906"],
   ["Kilim", "19341", "Tanzania", "1889"],
   ["K2", "28251", "Pakistan", "1954"],
-  ["ptvw", "22838", "Argentina", "1897"]
+  ["Aconcagua", "22838", "Argentina", "1897"]
 ];
 
-const app = document.createElement('div');
-app.id = "my-extension-root";
-document.body.appendChild(app);
-ReactDOM.render(
-  <React.StrictMode>
-    <Injestor rawTableData={INPUT}/>
-  </React.StrictMode>,
-  app
-);
+ReactDOM.render(<Injestor rawTableData={INPUT}/>, document.getElementById('root'));
+registerServiceWorker();

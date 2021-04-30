@@ -1,36 +1,36 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
-  "icons": [
+  "short_name": "My Extension",
+  "name": "My Extension",
+  "version": "1.1",
+  "manifest_version": 2,
+  "background": {
+    "scripts": [
+      "/static/js/jquery.js",
+      "/static/js/wikibase-sdk.min.js",
+      "/static/js/wikidata-sdk.min.js",
+      "app/background.js"
+    ]
+  },
+  "browser_action": {},
+  "content_scripts" : [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    },
-    {
-      "src": "logo192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "logo512.png",
-      "type": "image/png",
-      "sizes": "512x512"
+      "matches": [ "<all_urls>" ],
+      "css": [
+        "/static/css/jquery-ui.css",
+        "/static/css/index.css",
+        "/css/root.css"],
+      "js": [
+        "/static/js/jquery.js",
+        "/static/js/jquery-ui.js",
+        "/static/js/jquery_csv.js",
+        "/static/js/content.js"
+      ]
+
     }
   ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff",
-  "content_scripts": [
-    {
-      "matches": [
-        "http://*/*",
-        "https://*/*",
-        "file://*/*"
-      ],
-      "css": ["/static/css/main.css"],
-      "js": ["/static/js/main.js"]
-    }
-  ]
+  "web_accessible_resources":[
+    "/static/css/content.css", "/static/media/*"
+  ],
+  "permissions": ["<all_urls>"],
+  "content_security_policy": "script-src 'self' 'sha256-GgRxrVOKNdB4LrRsVPDSbzvfdV4UqglmviH9GoBJ5jk='; object-src 'self'"
 }
