@@ -3,6 +3,7 @@
 This is a chrome extension to extract and convert web data to a format that
 can be uploadable to a knowledge graph. To run the tool:
 
+0. If you haven't run before, run `npm install`
 1. Run `./buildTool` from the project root
 2. Navigate to extension management page at `chrome://extensions/`
 3. Click `Load unpacked` and select the `build/` directory in the project root
