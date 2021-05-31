@@ -9,6 +9,10 @@ class Entity extends GraphItem {
         this.outgoing = [];
     }
 
+    getRawData() {
+      return this.kgInfo === null ? null : `knps://wikidata.org/${this.kgInfo.id}`;
+    }
+
     getBindingInfo() {
       const bindingColumns = Object.keys(this.bindings);
       if(bindingColumns.length > 0) {

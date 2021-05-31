@@ -54,10 +54,6 @@ class GraphItem {
       clone.bindings = JSON.parse(JSON.stringify(this.bindings));
     }
 
-    getRawData() {
-      return {...this.kgInfo, bindings: this.bindings};
-    }
-
     getTriples(alreadySeenTriples) {
       return [];
     }

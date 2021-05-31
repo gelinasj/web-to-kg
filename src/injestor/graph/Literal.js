@@ -10,6 +10,10 @@ class Literal extends GraphItem {
         this.connector = null;
     }
 
+    getRawData() {
+      return this.kgInfo;
+    }
+
     generalize(tableData, filters) {
       const rowBindings = Object.keys(this.bindings);
       if(rowBindings.length !== 0) {

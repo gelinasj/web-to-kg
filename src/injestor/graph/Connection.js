@@ -31,6 +31,10 @@ class Connection extends GraphItem {
       return [this.from.getRawData(), this.getRawData(), this.to.getRawData()];
     }
 
+    getRawData() {
+      return this.kgInfo === null ? null : `knps://wikidata.org/${this.kgInfo.id}`;
+    }
+
     setLocation(canvasX, canvasY, pX, pY, optional={}) {
         this.updateTime();
         if(this.to === null && this.from === null) {

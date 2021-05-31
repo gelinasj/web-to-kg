@@ -3,7 +3,7 @@ import { SubGraphEditor } from "./SubGraphEditor.js";
 import { DataTable } from "./DataTable.js";
 import Connection from "../graph/Connection.js";
 import Entity from "../graph/Entity.js";
-import { cloneSubgraph, getOrCreate } from "../auxillary/auxillary.js";
+import { cloneSubgraph, getOrCreate, uploadToKG } from "../auxillary/auxillary.js";
 import { getEntities } from "../auxillary/autocomplete.js";
 
 export default class Injestor extends React.Component {
@@ -36,9 +36,7 @@ export default class Injestor extends React.Component {
       });
     });
     const entityIds = Object.keys(entitiesToBindings);
-    console.log("BBBBBBB");
     if(entityIds.length > 0) {
-      console.log("AAAAAAAAA");
       getEntities(entityIds).then((entities) => {
         let bindingToPropertyToValueToCount = {};
         Object.entries(entities).forEach(([id, entity]) => {
@@ -138,16 +136,24 @@ export default class Injestor extends React.Component {
     });
   }
 
-  printGraphTriples(subgraph) {
-    Object.values(subgraph).filter(
+  getGraphTriples(subgraph) {
+    return Object.values(subgraph).filter(
       (graphItem) => graphItem instanceof Connection
     ).map(
-      (item) => console.log(item.getTripleData())
+      (item) => item.getTripleData()
+    ).filter(
+      ([subject, predicate, object]) =>
+      !(subject === null || predicate === null || object === null)
     );
   }
 
   onUpload() {
-    this.state.subGraphEdits.map(this.printGraphTriples);
+    let triples = []
+    this.state.subGraphEdits.forEach((subgraph) =>
+      Array.prototype.push.apply(triples, this.getGraphTriples(subgraph))
+    );
+    console.log(triples);
+    uploadToKG(triples);
   }
 
   getFilters() {

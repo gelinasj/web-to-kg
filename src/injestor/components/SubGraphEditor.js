@@ -204,8 +204,6 @@ class SubGraphEditor extends React.Component {
     onMouseDown(e) {
         const {detailFocus} = this.state;
         const [mouseX, mouseY] = this.getCanvasPosn(e);
-        console.log("mouse down", e);
-        console.log("canvas posn", mouseX, mouseY);
         this.dragAction = DragAction.onMouseDown(this.menuItems, this.subgraph, mouseX, mouseY);
         this.proximateConnector = this.getProximateConnector();
         if(mouseX < this.canvasWidth && mouseY < this.canvasHeight && mouseX > 0 && mouseY > 0) {

@@ -68,7 +68,6 @@ export default class Extractor extends React.Component {
       fileDragArea.on("dragenter", change);
       fileDragArea.on("dragleave", change_back);
       function change() {
-        console.log("change");
         fileDragArea.css("background-color", '#4688F4');
       };
       function change_back() {
@@ -78,14 +77,6 @@ export default class Extractor extends React.Component {
       var width = 500;
       var height = 1000;
 
-      // and let's actually make it a dialog
-      // div.dialog(
-      //   {
-      //     title: "Data Demonstration",
-      //     width: width,
-      //     height: height,
-      //     position: {my: "left top", at: "left top", collision: "none"}
-      //   });
   }
 
   buttonize(elem, handler){
@@ -156,7 +147,6 @@ export default class Extractor extends React.Component {
   }
 
   processNewUploadedTableEvent(event){
-    console.log("dropped file", event);
     var fileName = event.target.files[0].name;
     var fileReader = new FileReader();
     var that = this;

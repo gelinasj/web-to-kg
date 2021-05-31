@@ -8,6 +8,7 @@
       "/static/js/jquery.js",
       "/static/js/wikibase-sdk.min.js",
       "/static/js/wikidata-sdk.min.js",
+      "/static/js/jquery_csv.js",
       "app/background.js"
     ]
   },
@@ -22,15 +23,13 @@
       "js": [
         "/static/js/jquery.js",
         "/static/js/jquery-ui.js",
-        "/static/js/jquery_csv.js",
         "/static/js/content.js"
       ]
-
     }
   ],
   "web_accessible_resources":[
     "/static/css/content.css", "/static/media/*"
   ],
-  "permissions": ["<all_urls>"],
+  "permissions": ["<all_urls>", "downloads"],
   "content_security_policy": "script-src 'self' 'sha256-GgRxrVOKNdB4LrRsVPDSbzvfdV4UqglmviH9GoBJ5jk='; object-src 'self'"
 }

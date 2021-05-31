@@ -21,7 +21,12 @@ export function requestDataFunc(currentTypedString) {
 }
 
 export function processReceivedDataFunc(data) {
-    return data.search;
+    try {
+      return data.search;
+    } catch (error) {
+      console.log(data);
+      throw error;
+    }
 }
 
 export function autocomplete(inp, onSelect, doc) {
@@ -32,7 +37,6 @@ export function autocomplete(inp, onSelect, doc) {
   inp.addEventListener("input", function(e) {
       var a, b, i, val = this.value;
       requestDataFunc(val).then((data) => {
-        console.log(JSON.stringify(data))
         const arr = processReceivedDataFunc(data);
         /*close any already open lists of autocompleted values*/
         closeAllLists();

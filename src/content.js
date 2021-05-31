@@ -17,23 +17,6 @@ class Main extends React.Component {
       }
     }
 
-    componentDidMount() {
-      // function outputsize() {
-      //   const dialog = document.getElementById("ui-dialog-container")
-      //   if(dialog) {
-      //     console.log(dialog);
-      //     console.log(dialog.offsetHeight)
-      //     console.log(dialog.offsetWidth)
-      //     const kgFrame = document.getElementById("frame-kg")
-      //     kgFrame.style.height = `${dialog.offsetHeight - 30}px`
-      //     kgFrame.style.width = `${dialog.offsetWidth - 30}px`
-      //   }
-      // }
-      // const dlg = document.getElementById("ui-dialog-container")
-      // console.log(dlg);
-      // new ResizeObserver(outputsize).observe(dlg)
-    }
-
     render() {
         return (
           <Dialog

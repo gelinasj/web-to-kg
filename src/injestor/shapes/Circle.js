@@ -75,7 +75,6 @@ class Circle extends Shape {
 
     containsPoint(pX, pY) {
         const { x, y } = this.center;
-        console.log((Math.pow(pX - x, 2) + Math.pow(pY - y, 2)) <= Math.pow(this.radius, 2));
         return (Math.pow(pX - x, 2) + Math.pow(pY - y, 2)) <= Math.pow(this.radius, 2);
     }
 

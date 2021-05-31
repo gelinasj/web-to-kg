@@ -1,3 +1,4 @@
+/*global chrome*/
 import Translate from "../drag-actions/Translate.js";
 import Resize from "../drag-actions/Resize.js";
 
@@ -123,8 +124,36 @@ function max(arr, comparator) {
   return max;
 }
 
+
+const API_URL = ""
+
+async function uploadToKG(triples) {
+  const USER_NAME = "Mike Anderson"
+  const USER_EMAIL = "mrander@umich.edu"
+  const userId = await getUserId(USER_EMAIL, USER_NAME);
+  return createDataObject(userId, triples)
+}
+
+function createDataObject(userId, triples) {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage({
+      type: "create_data_object",
+      data: [userId, triples]
+    }, resolve);
+  });
+}
+
+function getUserId(email, name) {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage({
+      type: "get_user_id",
+      data: [email, name]
+    }, resolve);
+  });
+}
+
 export {
   getClone, createLine, lteq, gteq, cloneSubgraph,
   lineContainsPoint, getPosnWithBounds, getOrCreate,
-  sortGraph, generateAction, setIntersection, max
+  sortGraph, generateAction, setIntersection, max, uploadToKG
 };
