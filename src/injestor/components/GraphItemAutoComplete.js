@@ -5,10 +5,10 @@ import "../auxillary/style.css";
 export default class GraphItemAutoComplete extends React.Component {
 
   componentDidMount() {
-    const { onSelect, doc } = this.props;
+    const { onSelect, doc, searchType } = this.props;
     const autocompleteInput = doc.getElementById("graphItemAutocompleteInput");
     if(autocompleteInput !== null) {
-      autocomplete(autocompleteInput, onSelect, doc);
+      autocomplete(autocompleteInput, onSelect, doc, searchType);
     }
   }
 

@@ -1,5 +1,5 @@
 import {
-  requestDataFunc, getEntities, processReceivedDataFunc
+  requestDataFunc, getEntities
 } from "../auxillary/autocomplete.js";
 import { max } from "../auxillary/auxillary.js";
 
@@ -21,8 +21,7 @@ class GraphItem {
     generalize(tableData, filters) {
       const rowBindings = Object.keys(this.bindings);
       if(rowBindings !== 0) {
-        return requestDataFunc(tableData[rowBindings[0]]).then((data) => {
-          const arr = processReceivedDataFunc(data);
+        return requestDataFunc(tableData[rowBindings[0]]).then((arr) => {
           const entityIds = arr.map((searchedEntity) => searchedEntity.id);
           if (entityIds.length === 0) return;
           return getEntities(entityIds).then((entityInfo) => {

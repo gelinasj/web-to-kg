@@ -11,33 +11,24 @@ export function getEntities(ids) {
 }
 
 
-export function requestDataFunc(currentTypedString) {
+export function requestDataFunc(currentTypedString, searchType="Entity") {
+  console.log(searchType, "content script");
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage({
-      type: "autocomplete",
+      type: `autocomplete_${searchType}`,
       data: currentTypedString
     }, resolve);
   });
 }
 
-export function processReceivedDataFunc(data) {
-    try {
-      return data.search;
-    } catch (error) {
-      console.log(data);
-      throw error;
-    }
-}
-
-export function autocomplete(inp, onSelect, doc) {
+export function autocomplete(inp, onSelect, doc, searchType) {
   /*the autocomplete function takes two arguments,
   the text field element and an array of possible autocompleted values:*/
   var currentFocus;
   /*execute a function when someone writes in the text field:*/
   inp.addEventListener("input", function(e) {
       var a, b, i, val = this.value;
-      requestDataFunc(val).then((data) => {
-        const arr = processReceivedDataFunc(data);
+      requestDataFunc(val, searchType).then((arr) => {
         /*close any already open lists of autocompleted values*/
         closeAllLists();
         if (!val) { return false;}
@@ -55,7 +46,7 @@ export function autocomplete(inp, onSelect, doc) {
             /*create a DIV element for each matching element:*/
             b = doc.createElement("DIV");
             /*make the matching letters bold:*/
-            b.innerHTML = `<strong>${label} (${id})</strong> - `;
+            b.innerHTML = `<strong>${label} (${id})</strong>  `;
             b.innerHTML += description;
             /*insert a input field that will hold the current array item's value:*/
             b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";

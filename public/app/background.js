@@ -20,7 +20,19 @@ async function postData(url = '', data = {}) {
   return response.json(); // parses JSON response into native JavaScript objects
 }
 
-function requestDataFunc(currentTypedString){
+function formatPropertyQuery(currentTypedString) {
+  return `SELECT ?url ?label
+          WHERE
+          {
+            ?url wdt:P31 wd:Q18616576;
+                  rdfs:label ?label;
+            FILTER (lang(?label) = "en").
+            FILTER regex (?label, ".*${currentTypedString}.*")
+          }
+          LIMIT 5`
+}
+
+function entityRequestDataFunc(currentTypedString){
   return new Promise((resolve, reject) => {
     if(currentTypedString) {
         const url = wdk.searchEntities(currentTypedString, undefined, 5);
@@ -30,6 +42,32 @@ function requestDataFunc(currentTypedString){
             success: resolve
         });
     } else {resolve(undefined)}
+  }).then((data) => data === undefined ? [] : data.search);
+}
+
+function connectionRequestDataFunc(currentTypedString){
+  return new Promise((resolve, reject) => {
+    if(currentTypedString) {
+        const query = formatPropertyQuery(currentTypedString)
+        const url = wdk.sparqlQuery(query)
+        return $.ajax({
+            dataType: "json",
+            url: url,
+            success: resolve
+        });
+    } else {resolve(undefined)}
+  }).then((data) => {
+    return data.results.bindings.map((result) => {
+      return {
+        id: result.url.value.match(/.*\/(P.*)$/)[1],
+        label: result.label.value,
+        url: result.url.value,
+        description: ""
+      };
+    })
+  }).then((data) => {
+    console.log(data);
+    return data;
   });
 }
 
@@ -82,8 +120,11 @@ async function createDataObject(userId, triples) {
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    if(request.type === "autocomplete") {
-      requestDataFunc(request.data).then(sendResponse)
+    if(request.type === "autocomplete_Entity") {
+      entityRequestDataFunc(request.data).then(sendResponse)
+    } else if(request.type === "autocomplete_Connection") {
+      console.log("connection request");
+      connectionRequestDataFunc(request.data).then(sendResponse)
     } else if (request.type === "id_search"){
       getEntities(request.data).then(sendResponse)
     } else if (request.type === "get_user_id") {
