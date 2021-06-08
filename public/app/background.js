@@ -65,9 +65,6 @@ function connectionRequestDataFunc(currentTypedString){
         description: ""
       };
     })
-  }).then((data) => {
-    console.log(data);
-    return data;
   });
 }
 
@@ -111,10 +108,18 @@ async function createDataObject(userId, triples) {
   }
   const formData = new FormData();
   formData.append("metadata", metadata);
-  var request = new XMLHttpRequest();
-  request.open("POST","http://localhost:5000/dobjs");
-  request.setRequestHeader("Content-type", "multipart/form-data");
-  return await request.send(formData);
+  return await $.ajax({
+    url: 'http://localhost:5000/dobjs',
+    type: 'POST',
+    processData: false, // important
+    contentType: false, // important
+    dataType : 'json',
+    data: formData
+  });
+  // var request = new XMLHttpRequest();
+  // request.open("POST","http://localhost:5000/dobjs");
+  // request.setRequestHeader("Content-type", "multipart/form-data");
+  // return await request.send(formData);
   // chrome.downloads.download({url: csvLink, filename: "temp.csv"});
 }
 
@@ -123,7 +128,6 @@ chrome.runtime.onMessage.addListener(
     if(request.type === "autocomplete_Entity") {
       entityRequestDataFunc(request.data).then(sendResponse)
     } else if(request.type === "autocomplete_Connection") {
-      console.log("connection request");
       connectionRequestDataFunc(request.data).then(sendResponse)
     } else if (request.type === "id_search"){
       getEntities(request.data).then(sendResponse)
