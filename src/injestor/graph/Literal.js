@@ -16,7 +16,10 @@ class Literal extends GraphItem {
 
     generalize(tableData, filters) {
       const rowBindings = Object.keys(this.bindings);
-      if(rowBindings.length !== 0 && this.kgInfo !== null) {
+      if(rowBindings.length !== 0) {
+        if(this.kgInfo === null) {
+          this.kgInfo = {literalInputType: INPUT_TYPES.string};
+        }
         if(this.kgInfo.literalInputType === INPUT_TYPES.quantity) {
           this.kgInfo.value.data = tableData[rowBindings[0]];
         } else {

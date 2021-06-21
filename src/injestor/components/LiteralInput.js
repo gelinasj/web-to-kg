@@ -66,7 +66,7 @@ export default class LiteralInput extends React.Component {
         return (
           <div>
             <input type="text" name="quantity" onChange={onChangeQuantityData}/> <br/>
-            <GraphItemAutoComplete searchType={"Unit"} onSelect={onChangeQuantityUnit}/>
+            <GraphItemAutoComplete searchType={"Unit"} onSelect={onChangeQuantityUnit} doc={this.props.doc}/>
           </div>
         );
       case INPUT_TYPES.date:

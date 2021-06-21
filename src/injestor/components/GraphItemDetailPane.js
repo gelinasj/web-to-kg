@@ -19,7 +19,7 @@ export default class GraphItemDetailPane extends React.Component {
           <button onClick={onRemove}>Remove</button>
           <p>{Object.values(bindings).join(", ")}</p>
           {focusType === "Literal" ?
-            <LiteralInput onChange={onSelect}/> :
+            <LiteralInput onChange={onSelect} doc={this.props.doc}/> :
             <GraphItemAutoComplete searchType={focusType} onSelect={onSelect} doc={this.props.doc}/>}
       </div>
     );
