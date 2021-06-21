@@ -12,7 +12,6 @@ export function getEntities(ids) {
 
 
 export function requestDataFunc(currentTypedString, searchType="Entity") {
-  console.log(searchType, "content script");
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage({
       type: `autocomplete_${searchType}`,
