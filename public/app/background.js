@@ -21,15 +21,38 @@ async function postData(url = '', data = {}) {
 }
 
 function formatPropertyQuery(currentTypedString) {
-  return `SELECT ?url ?label
+  return `SELECT DISTINCT ?label ?url
           WHERE
-          {
-            ?url wdt:P31 wd:Q18616576;
-                  rdfs:label ?label;
-            FILTER (lang(?label) = "en").
-            FILTER regex (?label, ".*${currentTypedString}.*")
+          {{
+                ?url wdt:P31 wd:Q18616576;
+                     rdfs:label ?label.
+                FILTER (lang(?label) = "en").
+                FILTER regex (?label, ".*${currentTypedString}.*")
+
           }
-          LIMIT 5`
+          UNION
+          {
+                ?url wdt:P31 ?propType;
+                     rdfs:label ?label.
+                {
+                  {?propType wdt:P279 wd:Q18616576.}
+                  UNION
+                  {?propType wdt:P279 ?propClass1.
+                   ?propClass1 wdt:P279 wd:Q18616576.}
+                  UNION
+                  {?propType wdt:P279 ?propClass1.
+                   ?propClass1 wdt:P279 ?propClass2.
+                   ?propClass2 wdt:P279 wd:Q18616576.}
+                  UNION
+                  {?propType wdt:P279 ?propClass1.
+                   ?propClass1 wdt:P279 ?propClass2.
+                   ?propClass2 wdt:P279 ?propClass3.
+                   ?propClass3 wdt:P279 wd:Q18616576.}
+                }
+                FILTER (lang(?label) = "en").
+                FILTER regex (?label, ".*${currentTypedString}.*")
+          }}
+          LIMIT 3`
 }
 
 function entityRequestDataFunc(currentTypedString){
@@ -102,20 +125,36 @@ async function createDataObject(userId, triples) {
       'description': "Temporary Data Description (TODO)",
       'comment': "Temporary Data Comment (TODO)",
       'datatype': '/datatypes/csv',
-      'data': csv,
+      // 'data': csv,
       'mimetype': 'text/csv',
       'predecessors': []
-  }
+  };
+
   const formData = new FormData();
-  formData.append("metadata", metadata);
-  return await $.ajax({
-    url: 'http://localhost:5000/dobjs',
-    type: 'POST',
-    processData: false, // important
-    contentType: false, // important
-    dataType : 'json',
-    data: formData
+  var blob = new Blob([csv], {type: "text/csv"});
+  formData.append("datafile", blob);
+  var blob2 = new Blob([metadata], {type: "text/json"});
+  formData.append("metadata", blob2);
+  return await fetch(url, {
+    method: 'POST',
+    body: formData
   });
+
+  // const formData = new FormData();
+  // // formData.append("metadata", metadata);
+  // formData.append("datafile", csv);
+  // return await fetch('http://localhost:5000/dobjs', {
+  //     method: 'POST',
+  //     body: formData
+  //   });
+  // return await $.ajax({
+  //   url: 'http://localhost:5000/dobjs',
+  //   type: 'POST',
+  //   processData: false, // important
+  //   contentType: false, // important
+  //   dataType : 'json',
+  //   data: formData
+  // });
   // var request = new XMLHttpRequest();
   // request.open("POST","http://localhost:5000/dobjs");
   // request.setRequestHeader("Content-type", "multipart/form-data");
